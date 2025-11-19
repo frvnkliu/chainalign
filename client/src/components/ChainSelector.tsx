@@ -1,57 +1,97 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ChainNode from './ChainNode';
 
 interface Model {
   id: string;
   name: string;
-  logo?: string;
 }
 
 interface ChainSelectorProps {
-  chainLength?: number;
   availableModels: Model[];
 }
 
-export default function ChainSelector({ chainLength = 3, availableModels }: ChainSelectorProps) {
-  const [selectedModels, setSelectedModels] = useState<(Model | undefined)[]>(
-    Array(chainLength).fill(undefined)
-  );
+const Line = () => (
+  <div style={{ width: '60px', height: '3px', background: 'black' }} />
+);
 
-  const handleSelect = (position: number, model: Model) => {
-    const newSelected = [...selectedModels];
-    newSelected[position] = model;
-    setSelectedModels(newSelected);
+const ArrowLine = () => (
+  <div style={{ display: 'flex', alignItems: 'center' }}>
+    <div style={{ width: '60px', height: '3px', background: 'black' }} />
+    <div
+      style={{
+        width: '0',
+        height: '0',
+        borderLeft: '6px solid black',
+        borderTop: '4px solid transparent',
+        borderBottom: '4px solid transparent',
+      }}
+    />
+  </div>
+);
+
+export default function ChainSelector({ availableModels }: ChainSelectorProps) {
+  const [chain, setChain] = useState<Model[]>([]);
+  const [showEmpty, setShowEmpty] = useState(true);
+
+  useEffect(() => {
+    setShowEmpty(false);
+    const timer = setTimeout(() => setShowEmpty(true), 10);
+    return () => clearTimeout(timer);
+  }, [chain.length]);
+
+  const handleSelect = (index: number, model: Model) => {
+    const newChain = [...chain];
+    newChain[index] = model;
+    setChain(newChain);
   };
 
   return (
-    <div style={{ padding: '2rem 0' }}>
+    <div style={{ padding: '2rem 0', minHeight: '400px', display: 'flex', alignItems: 'center' }}>
       <div
         style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: '0',
+          width: '100%',
         }}
       >
-        {selectedModels.map((selected, index) => (
-          <div key={index} style={{ display: 'flex', alignItems: 'center' }}>
+        <div style={{ fontWeight: 'bold', fontSize: '0.875rem', alignSelf: 'center', marginRight: '0.5rem' }}>INPUT</div>
+
+        <Line />
+
+        {chain.map((selected, index) => (
+          <div
+            key={index}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+            }}
+          >
             <ChainNode
               models={availableModels}
               selectedModel={selected}
               onSelect={(model) => handleSelect(index, model)}
-              position={index + 1}
             />
-            {index < selectedModels.length - 1 && (
-              <div
-                style={{
-                  width: '60px',
-                  height: '3px',
-                  background: 'black',
-                }}
-              />
-            )}
+            <Line />
           </div>
         ))}
+
+        {/* Empty node to add next model */}
+        {showEmpty && (
+          <div style={{ animation: 'popIn 0.3s cubic-bezier(0.4, 0, 0.2, 1)' }}>
+            <ChainNode
+              models={availableModels}
+              selectedModel={undefined}
+              onSelect={(model) => {
+                setChain([...chain, model]);
+              }}
+            />
+          </div>
+        )}
+
+        <ArrowLine />
+
+        <div style={{ fontWeight: 'bold', fontSize: '0.875rem', alignSelf: 'center', marginLeft: '0.5rem' }}>OUTPUT</div>
       </div>
     </div>
   );

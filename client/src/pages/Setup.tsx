@@ -33,7 +33,7 @@ export default function Setup() {
         }}>
           Select Your Chain
         </h2>
-        <ChainSelector chainLength={3} availableModels={AVAILABLE_MODELS} />
+        <ChainSelector availableModels={AVAILABLE_MODELS} />
       </div>
     </div>
   );
