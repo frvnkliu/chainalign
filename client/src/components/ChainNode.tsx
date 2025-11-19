@@ -9,9 +9,10 @@ interface ChainNodeProps {
   models: Model[];
   selectedModel?: Model;
   onSelect: (model: Model) => void;
+  onDelete?: () => void;
 }
 
-export default function ChainNode({ models, selectedModel, onSelect }: ChainNodeProps) {
+export default function ChainNode({ models, selectedModel, onSelect, onDelete }: ChainNodeProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const groupIntoRows = (items: Model[]) => {
@@ -57,6 +58,7 @@ export default function ChainNode({ models, selectedModel, onSelect }: ChainNode
       }}
       onClick={handleClick}
       style={{
+        position: 'relative',
         display: 'inline-flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -71,6 +73,43 @@ export default function ChainNode({ models, selectedModel, onSelect }: ChainNode
         padding: shouldShowExpanded ? '1rem' : '0',
       }}
     >
+      {selectedModel && onDelete && isHovering && !shouldShowExpanded && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete();
+          }}
+          style={{
+            position: 'absolute',
+            top: '-8px',
+            right: '-8px',
+            width: '20px',
+            height: '20px',
+            border: '2px solid black',
+            background: 'white',
+            color: 'black',
+            cursor: 'pointer',
+            fontSize: '0.75rem',
+            fontWeight: 'bold',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 0,
+            lineHeight: 1,
+            transition: 'all 0.15s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'red';
+            e.currentTarget.style.color = 'white';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'white';
+            e.currentTarget.style.color = 'black';
+          }}
+        >
+          ×
+        </button>
+      )}
       {shouldShowExpanded ? (
         <div>
           {rows.map((row, rowIndex) => (

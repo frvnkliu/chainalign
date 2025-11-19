@@ -37,16 +37,25 @@ const ArrowLine = () => (
 export default function ChainSelector({ availableModels }: ChainSelectorProps) {
   const [chain, setChain] = useState<Model[]>([]);
   const [showEmpty, setShowEmpty] = useState(true);
+  const [lastUpdateType, setLastUpdateType] = useState<'add' | 'delete' | 'update'>('add');
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   useEffect(() => {
     setShowEmpty(false);
-    const timer = setTimeout(() => setShowEmpty(true), 10);
+    const timer = setTimeout(() => setShowEmpty(true), 30);
     return () => clearTimeout(timer);
   }, [chain.length]);
 
   const handleSelect = (index: number, model: Model) => {
+    setLastUpdateType('update');
     const newChain = [...chain];
     newChain[index] = model;
+    setChain(newChain);
+  };
+
+  const handleDelete = (index: number) => {
+    setLastUpdateType('delete');
+    const newChain = chain.filter((_, i) => i !== index);
     setChain(newChain);
   };
 
@@ -62,7 +71,7 @@ export default function ChainSelector({ availableModels }: ChainSelectorProps) {
       >
         <div style={{ fontWeight: 'bold', fontSize: '0.875rem', alignSelf: 'center', marginRight: '0.5rem' }}>INPUT</div>
 
-        <AnimatedLine animate={chain.length === 0} />
+        <AnimatedLine animate={isInitialLoad} />
 
         {chain.map((selected, index) => (
           <div
@@ -76,15 +85,16 @@ export default function ChainSelector({ availableModels }: ChainSelectorProps) {
               models={availableModels}
               selectedModel={selected}
               onSelect={(model) => handleSelect(index, model)}
+              onDelete={() => handleDelete(index)}
             />
-            <AnimatedLine animate={index === chain.length - 1} />
+            <AnimatedLine animate={index === chain.length - 1 && lastUpdateType === 'add'} />
           </div>
         ))}
 
         {/* Empty node to add next model */}
         {showEmpty && (
           <div style={{
-            animation: 'popIn 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
+            animation: lastUpdateType === 'add' ? 'popIn 0.6s cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -94,6 +104,8 @@ export default function ChainSelector({ availableModels }: ChainSelectorProps) {
               models={availableModels}
               selectedModel={undefined}
               onSelect={(model) => {
+                setIsInitialLoad(false);
+                setLastUpdateType('add');
                 setChain([...chain, model]);
               }}
             />
