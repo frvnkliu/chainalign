@@ -10,7 +10,7 @@ export default function Home() {
         ChainAlign
       </h1>
       <p style={{ fontSize: '1.25rem', maxWidth: '600px' }}>
-        Welcome to ChainAlign
+        Find the model Chain that Aligns with you
       </p>
     </div>
   );
