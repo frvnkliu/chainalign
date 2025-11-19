@@ -64,10 +64,10 @@ export default function ChainNode({ models, selectedModel, onSelect }: ChainNode
         background: selectedModel && isHovering && !shouldShowExpanded ? '#f0f0f0' : 'white',
         cursor: 'pointer',
         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-        minWidth: '80px',
-        minHeight: '80px',
-        width: shouldShowExpanded ? 'auto' : '80px',
-        height: shouldShowExpanded ? 'auto' : '80px',
+        minWidth: selectedModel ? '80px' : 'var(--empty-node-size)',
+        minHeight: selectedModel ? '80px' : 'var(--empty-node-size)',
+        width: shouldShowExpanded ? 'auto' : (selectedModel ? '80px' : 'var(--empty-node-size)'),
+        height: shouldShowExpanded ? 'auto' : (selectedModel ? '80px' : 'var(--empty-node-size)'),
         padding: shouldShowExpanded ? '1rem' : '0',
       }}
     >
@@ -122,16 +122,51 @@ export default function ChainNode({ models, selectedModel, onSelect }: ChainNode
           ))}
         </div>
       ) : (
-        <div
-          style={{
-            fontWeight: 'bold',
-            fontSize: '0.75rem',
-            textAlign: 'center',
-            padding: '0.5rem',
-          }}
-        >
-          {selectedModel?.name || ''}
-        </div>
+        <>
+          {selectedModel ? (
+            <div
+              style={{
+                fontWeight: 'bold',
+                fontSize: '0.75rem',
+                textAlign: 'center',
+                padding: '0.5rem',
+              }}
+            >
+              {selectedModel.name}
+            </div>
+          ) : (
+            <div
+              style={{
+                position: 'relative',
+                width: '20px',
+                height: '20px',
+              }}
+            >
+              <div
+                style={{
+                  position: 'absolute',
+                  left: '50%',
+                  top: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  width: '12px',
+                  height: '2px',
+                  background: 'black',
+                }}
+              />
+              <div
+                style={{
+                  position: 'absolute',
+                  left: '50%',
+                  top: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  width: '2px',
+                  height: '12px',
+                  background: 'black',
+                }}
+              />
+            </div>
+          )}
+        </>
       )}
     </div>
   );

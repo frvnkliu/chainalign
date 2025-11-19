@@ -10,8 +10,13 @@ interface ChainSelectorProps {
   availableModels: Model[];
 }
 
-const Line = () => (
-  <div style={{ width: '60px', height: '3px', background: 'black' }} />
+const AnimatedLine = ({ animate }: { animate: boolean }) => (
+  <div style={{
+    width: '60px',
+    height: '3px',
+    background: 'black',
+    animation: animate ? 'expandLine 0.6s cubic-bezier(0.4, 0, 0.2, 1)' : 'none'
+  }} />
 );
 
 const ArrowLine = () => (
@@ -57,7 +62,7 @@ export default function ChainSelector({ availableModels }: ChainSelectorProps) {
       >
         <div style={{ fontWeight: 'bold', fontSize: '0.875rem', alignSelf: 'center', marginRight: '0.5rem' }}>INPUT</div>
 
-        <Line />
+        <AnimatedLine animate={chain.length === 0} />
 
         {chain.map((selected, index) => (
           <div
@@ -72,13 +77,19 @@ export default function ChainSelector({ availableModels }: ChainSelectorProps) {
               selectedModel={selected}
               onSelect={(model) => handleSelect(index, model)}
             />
-            <Line />
+            <AnimatedLine animate={index === chain.length - 1} />
           </div>
         ))}
 
         {/* Empty node to add next model */}
         {showEmpty && (
-          <div style={{ animation: 'popIn 0.3s cubic-bezier(0.4, 0, 0.2, 1)' }}>
+          <div style={{
+            animation: 'popIn 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            overflow: 'hidden'
+          }}>
             <ChainNode
               models={availableModels}
               selectedModel={undefined}
