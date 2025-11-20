@@ -44,7 +44,6 @@ export default function ChainSelector({ availableModels }: ChainSelectorProps) {
   };
 
   const handleDelete = (index: number) => {
-    console.log("Deleting index", index);
     // Set all nodes from index onwards to delete state
     const indicesToDelete = new Set<number>();
     for (let i = index; i < chain.length-1; i++) {

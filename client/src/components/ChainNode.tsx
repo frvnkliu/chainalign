@@ -45,6 +45,7 @@ export default function ChainNode({ models, selectedModel, onSelect, onDelete }:
   const handleSelectModel = (model: Model) => {
     onSelect(model);
     setIsExpanded(false);
+    setIsHovering(false);
   };
 
   const nodeClasses = [
