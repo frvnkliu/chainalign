@@ -14,6 +14,7 @@ interface ChainNodeProps {
 
 export default function ChainNode({ models, selectedModel, onSelect, onDelete }: ChainNodeProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isHovering, setIsHovering] = useState(false);
 
   const groupIntoRows = (items: Model[]) => {
     const rows: Model[][] = [];
@@ -28,10 +29,12 @@ export default function ChainNode({ models, selectedModel, onSelect, onDelete }:
   const shouldShowExpanded = isExpanded;
 
   const handleMouseEnter = () => {
+    setIsHovering(true);
     if (shouldExpandOnHover) setIsExpanded(true);
   };
 
   const handleMouseLeave = () => {
+    setIsHovering(false);
     if (shouldExpandOnHover) setIsExpanded(false);
   };
 
@@ -44,114 +47,43 @@ export default function ChainNode({ models, selectedModel, onSelect, onDelete }:
     setIsExpanded(false);
   };
 
-  const [isHovering, setIsHovering] = useState(false);
+  const nodeClasses = [
+    'chain-node',
+    !selectedModel && 'chain-node--empty',
+    shouldShowExpanded && 'chain-node--expanded',
+    selectedModel && isHovering && !shouldShowExpanded && 'chain-node--hovering'
+  ].filter(Boolean).join(' ');
 
   return (
     <div
-      onMouseEnter={() => {
-        setIsHovering(true);
-        handleMouseEnter();
-      }}
-      onMouseLeave={() => {
-        setIsHovering(false);
-        handleMouseLeave();
-      }}
+      className={nodeClasses}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       onClick={handleClick}
-      style={{
-        position: 'relative',
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        border: '3px solid black',
-        background: selectedModel && isHovering && !shouldShowExpanded ? '#f0f0f0' : 'white',
-        cursor: 'pointer',
-        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-        minWidth: selectedModel ? '80px' : 'var(--empty-node-size)',
-        minHeight: selectedModel ? '80px' : 'var(--empty-node-size)',
-        width: shouldShowExpanded ? 'auto' : (selectedModel ? '80px' : 'var(--empty-node-size)'),
-        height: shouldShowExpanded ? 'auto' : (selectedModel ? '80px' : 'var(--empty-node-size)'),
-        padding: shouldShowExpanded ? '1rem' : '0',
-      }}
     >
       {selectedModel && onDelete && isHovering && !shouldShowExpanded && (
         <button
+          className="chain-node__delete-btn"
           onClick={(e) => {
             e.stopPropagation();
             onDelete();
-          }}
-          style={{
-            position: 'absolute',
-            top: '-8px',
-            right: '-8px',
-            width: '20px',
-            height: '20px',
-            border: '2px solid black',
-            background: 'white',
-            color: 'black',
-            cursor: 'pointer',
-            fontSize: '0.75rem',
-            fontWeight: 'bold',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: 0,
-            lineHeight: 1,
-            transition: 'all 0.15s ease',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = 'red';
-            e.currentTarget.style.color = 'white';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = 'white';
-            e.currentTarget.style.color = 'black';
           }}
         >
           ×
         </button>
       )}
+
       {shouldShowExpanded ? (
-        <div>
+        <div className="chain-node__grid">
           {rows.map((row, rowIndex) => (
-            <div
-              key={rowIndex}
-              style={{
-                display: 'flex',
-                justifyContent: 'center',
-                gap: '0.75rem',
-                marginBottom: rowIndex < rows.length - 1 ? '0.75rem' : '0',
-              }}
-            >
+            <div key={rowIndex} className="chain-node__row">
               {row.map((model) => (
                 <button
                   key={model.id}
+                  className={`chain-node__option ${selectedModel?.id === model.id ? 'chain-node__option--selected' : ''}`}
                   onClick={(e) => {
                     e.stopPropagation();
                     handleSelectModel(model);
-                  }}
-                  style={{
-                    width: '60px',
-                    height: '60px',
-                    border: '2px solid black',
-                    background: selectedModel?.id === model.id ? 'black' : 'white',
-                    color: selectedModel?.id === model.id ? 'white' : 'black',
-                    cursor: 'pointer',
-                    fontSize: '0.65rem',
-                    fontWeight: 'bold',
-                    padding: '0.25rem',
-                    transition: 'all 0.15s ease',
-                  }}
-                  onMouseEnter={(e) => {
-                    if (selectedModel?.id !== model.id) {
-                      e.currentTarget.style.background = 'black';
-                      e.currentTarget.style.color = 'white';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (selectedModel?.id !== model.id) {
-                      e.currentTarget.style.background = 'white';
-                      e.currentTarget.style.color = 'black';
-                    }
                   }}
                 >
                   {model.name}
@@ -163,47 +95,11 @@ export default function ChainNode({ models, selectedModel, onSelect, onDelete }:
       ) : (
         <>
           {selectedModel ? (
-            <div
-              style={{
-                fontWeight: 'bold',
-                fontSize: '0.75rem',
-                textAlign: 'center',
-                padding: '0.5rem',
-              }}
-            >
+            <div className="chain-node__content">
               {selectedModel.name}
             </div>
           ) : (
-            <div
-              style={{
-                position: 'relative',
-                width: '20px',
-                height: '20px',
-              }}
-            >
-              <div
-                style={{
-                  position: 'absolute',
-                  left: '50%',
-                  top: '50%',
-                  transform: 'translate(-50%, -50%)',
-                  width: '12px',
-                  height: '2px',
-                  background: 'black',
-                }}
-              />
-              <div
-                style={{
-                  position: 'absolute',
-                  left: '50%',
-                  top: '50%',
-                  transform: 'translate(-50%, -50%)',
-                  width: '2px',
-                  height: '12px',
-                  background: 'black',
-                }}
-              />
-            </div>
+            <div className="chain-node__empty-icon" />
           )}
         </>
       )}

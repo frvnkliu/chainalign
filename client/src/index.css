@@ -26,8 +26,9 @@ a:hover {
   color: white;
 }
 
-@keyframes popIn {
-  0%, 50% {
+/* Chain Node Animations */
+@keyframes nodeExpandEmpty {
+  0% {
     opacity: 0;
     width: 0;
     height: 0;
@@ -43,14 +44,250 @@ a:hover {
   }
 }
 
-@keyframes expandLine {
+@keyframes nodeExpandFilled {
+  0% {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    min-width: 0;
+    min-height: 0;
+  }
+  100% {
+    opacity: 1;
+    width: 80px;
+    height: 80px;
+    min-width: 80px;
+    min-height: 80px;
+  }
+}
+
+@keyframes nodeShrinkEmpty {
+  0% {
+    opacity: 1;
+    width: var(--empty-node-size);
+    height: var(--empty-node-size);
+    min-width: var(--empty-node-size);
+    min-height: var(--empty-node-size);
+  }
+  100% {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    min-width: 0;
+    min-height: 0;
+  }
+}
+
+@keyframes nodeShrinkFilled {
+  0% {
+    opacity: 1;
+    width: 80px;
+    height: 80px;
+    min-width: 80px;
+    min-height: 80px;
+  }
+  100% {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    min-width: 0;
+    min-height: 0;
+  }
+}
+
+/* Line Animations */
+@keyframes lineExpand {
   0% {
     width: 0;
-  }
-  50% {
-    width: 60px;
   }
   100% {
     width: 60px;
   }
+}
+
+@keyframes lineShrink {
+  0% {
+    width: 60px;
+  }
+  100% {
+    width: 0;
+  }
+}
+
+/* ChainLink State Classes */
+.chain-link {
+  display: flex;
+  align-items: center;
+}
+
+.chain-link__line {
+  width: 60px;
+  height: 3px;
+  background: black;
+}
+
+.chain-link__node-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* Add state - line expands first (0.3s), then node expands (0.3s) */
+.chain-link--add .chain-link__line {
+  width: 0;
+  animation: lineExpand 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Empty node expansion (40px) */
+.chain-link--add.chain-link--empty .chain-link__node-wrapper {
+  opacity: 0;
+  width: 0;
+  animation: nodeExpandEmpty 0.3s cubic-bezier(0.4, 0, 0.2, 1) 0.3s forwards;
+}
+
+/* Filled node expansion (80px) */
+.chain-link--add.chain-link--filled .chain-link__node-wrapper {
+  opacity: 0;
+  width: 0;
+  animation: nodeExpandFilled 0.3s cubic-bezier(0.4, 0, 0.2, 1) 0.3s forwards;
+}
+
+/* Delete state - node shrinks first (0.3s), then line shrinks (0.3s) */
+.chain-link--delete.chain-link--empty .chain-link__node-wrapper {
+  animation: nodeShrinkEmpty 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.chain-link--delete.chain-link--filled .chain-link__node-wrapper {
+  animation: nodeShrinkFilled 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.chain-link--delete .chain-link__line {
+  animation: lineShrink 0.3s cubic-bezier(0.4, 0, 0.2, 1) 0.3s forwards;
+}
+
+/* ChainNode Base Styles */
+.chain-node {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid black;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-width: 80px;
+  min-height: 80px;
+  width: 80px;
+  height: 80px;
+}
+
+.chain-node--empty {
+  min-width: var(--empty-node-size);
+  min-height: var(--empty-node-size);
+  width: var(--empty-node-size);
+  height: var(--empty-node-size);
+}
+
+.chain-node--expanded {
+  width: auto;
+  height: auto;
+  padding: 1rem;
+}
+
+.chain-node--hovering {
+  background: #f0f0f0;
+}
+
+.chain-node__delete-btn {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 20px;
+  height: 20px;
+  border: 2px solid black;
+  background: white;
+  color: black;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 1;
+  transition: all 0.15s ease;
+}
+
+.chain-node__delete-btn:hover {
+  background: red;
+  color: white;
+}
+
+.chain-node__content {
+  font-weight: bold;
+  font-size: 0.75rem;
+  text-align: center;
+  padding: 0.5rem;
+}
+
+.chain-node__empty-icon {
+  position: relative;
+  width: 20px;
+  height: 20px;
+}
+
+.chain-node__empty-icon::before,
+.chain-node__empty-icon::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: black;
+}
+
+.chain-node__empty-icon::before {
+  width: 12px;
+  height: 2px;
+}
+
+.chain-node__empty-icon::after {
+  width: 2px;
+  height: 12px;
+}
+
+.chain-node__grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.chain-node__row {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.chain-node__option {
+  width: 60px;
+  height: 60px;
+  border: 2px solid black;
+  background: white;
+  color: black;
+  cursor: pointer;
+  font-size: 0.65rem;
+  font-weight: bold;
+  padding: 0.25rem;
+  transition: all 0.15s ease;
+}
+
+.chain-node__option:hover {
+  background: black;
+  color: white;
+}
+
+.chain-node__option--selected {
+  background: black;
+  color: white;
 }

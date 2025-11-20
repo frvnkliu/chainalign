@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import ChainNode from './ChainNode';
+import { useState } from 'react';
+import ChainLink from './ChainLink';
 
 interface Model {
   id: string;
@@ -10,14 +10,10 @@ interface ChainSelectorProps {
   availableModels: Model[];
 }
 
-const AnimatedLine = ({ animate }: { animate: boolean }) => (
-  <div style={{
-    width: '60px',
-    height: '3px',
-    background: 'black',
-    animation: animate ? 'expandLine 0.6s cubic-bezier(0.4, 0, 0.2, 1)' : 'none'
-  }} />
-);
+interface ChainItem {
+  model: Model;
+  animationState: 'add' | 'delete' | 'idle';
+}
 
 const ArrowLine = () => (
   <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -35,28 +31,51 @@ const ArrowLine = () => (
 );
 
 export default function ChainSelector({ availableModels }: ChainSelectorProps) {
-  const [chain, setChain] = useState<Model[]>([]);
-  const [showEmpty, setShowEmpty] = useState(true);
-  const [lastUpdateType, setLastUpdateType] = useState<'add' | 'delete' | 'update'>('add');
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
-
-  useEffect(() => {
-    setShowEmpty(false);
-    const timer = setTimeout(() => setShowEmpty(true), 30);
-    return () => clearTimeout(timer);
-  }, [chain.length]);
+  const [chain, setChain] = useState<ChainItem[]>([]);
+  const [pendingDeletions, setPendingDeletions] = useState<Set<number>>(new Set());
 
   const handleSelect = (index: number, model: Model) => {
-    setLastUpdateType('update');
-    const newChain = [...chain];
-    newChain[index] = model;
-    setChain(newChain);
+    setChain(prev => prev.map((item, i) =>
+      i === index ? { ...item, model, animationState: 'idle' } : item
+    ));
   };
 
   const handleDelete = (index: number) => {
-    setLastUpdateType('delete');
-    const newChain = chain.filter((_, i) => i !== index);
-    setChain(newChain);
+    // Set all nodes from index onwards to delete state
+    const indicesToDelete = new Set<number>();
+    for (let i = index; i < chain.length; i++) {
+      indicesToDelete.add(i);
+    }
+    setPendingDeletions(indicesToDelete);
+
+    setChain(prev => prev.map((item, i) =>
+      i >= index ? { ...item, animationState: 'delete' } : item
+    ));
+  };
+
+  const handleAnimationComplete = (index: number) => {
+    if (pendingDeletions.has(index)) {
+      // Check if all pending deletions have completed
+      const allCompleted = Array.from(pendingDeletions).every(i =>
+        chain[i]?.animationState === 'delete'
+      );
+
+      if (allCompleted) {
+        // Remove all items that were marked for deletion
+        const minIndex = Math.min(...Array.from(pendingDeletions));
+        setChain(prev => prev.slice(0, minIndex));
+        setPendingDeletions(new Set());
+      }
+    }
+  };
+
+  const handleAddModel = (model: Model) => {
+    setChain(prev => [...prev, { model, animationState: 'add' }]);
+  };
+
+  const handleNewNodeAnimationComplete = () => {
+    // After add animation completes, set state to idle
+    setChain(prev => prev.map(item => ({ ...item, animationState: 'idle' })));
   };
 
   return (
@@ -69,52 +88,36 @@ export default function ChainSelector({ availableModels }: ChainSelectorProps) {
           width: '100%',
         }}
       >
-        <div style={{ fontWeight: 'bold', fontSize: '0.875rem', alignSelf: 'center', marginRight: '0.5rem' }}>INPUT</div>
+        <div style={{ fontWeight: 'bold', fontSize: '0.875rem', marginRight: '0.5rem' }}>
+          INPUT
+        </div>
 
-        <AnimatedLine animate={isInitialLoad} />
-
-        {chain.map((selected, index) => (
-          <div
+        {chain.map((item, index) => (
+          <ChainLink
             key={index}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-            }}
-          >
-            <ChainNode
-              models={availableModels}
-              selectedModel={selected}
-              onSelect={(model) => handleSelect(index, model)}
-              onDelete={() => handleDelete(index)}
-            />
-            <AnimatedLine animate={index === chain.length - 1 && lastUpdateType === 'add'} />
-          </div>
+            models={availableModels}
+            selectedModel={item.model}
+            onSelect={(model) => handleSelect(index, model)}
+            onDelete={() => handleDelete(index)}
+            animationState={item.animationState}
+            onAnimationComplete={() => handleAnimationComplete(index)}
+          />
         ))}
 
         {/* Empty node to add next model */}
-        {showEmpty && (
-          <div style={{
-            animation: lastUpdateType === 'add' ? 'popIn 0.6s cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            overflow: 'hidden'
-          }}>
-            <ChainNode
-              models={availableModels}
-              selectedModel={undefined}
-              onSelect={(model) => {
-                setIsInitialLoad(false);
-                setLastUpdateType('add');
-                setChain([...chain, model]);
-              }}
-            />
-          </div>
-        )}
+        <ChainLink
+          models={availableModels}
+          selectedModel={undefined}
+          onSelect={handleAddModel}
+          animationState={chain.length > 0 && chain[chain.length - 1].animationState === 'add' ? 'add' : 'idle'}
+          onAnimationComplete={handleNewNodeAnimationComplete}
+        />
 
         <ArrowLine />
 
-        <div style={{ fontWeight: 'bold', fontSize: '0.875rem', alignSelf: 'center', marginLeft: '0.5rem' }}>OUTPUT</div>
+        <div style={{ fontWeight: 'bold', fontSize: '0.875rem', marginLeft: '0.5rem' }}>
+          OUTPUT
+        </div>
       </div>
     </div>
   );
