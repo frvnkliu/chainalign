@@ -11,7 +11,7 @@ interface ChainSelectorProps {
 }
 
 interface ChainItem {
-  model: Model;
+  model: Model | undefined;
   animationState: 'add' | 'delete' | 'idle';
 }
 
@@ -31,25 +31,29 @@ const ArrowLine = () => (
 );
 
 export default function ChainSelector({ availableModels }: ChainSelectorProps) {
-  const [chain, setChain] = useState<ChainItem[]>([]);
+  const [chain, setChain] = useState<ChainItem[]>([{model: undefined, animationState: 'add'}]);
   const [pendingDeletions, setPendingDeletions] = useState<Set<number>>(new Set());
 
   const handleSelect = (index: number, model: Model) => {
-    setChain(prev => prev.map((item, i) =>
-      i === index ? { ...item, model, animationState: 'idle' } : item
-    ));
+    const new_chain = [...chain]
+    new_chain[index] = {model, animationState: 'idle'};
+    if (index === chain.length - 1) {
+      new_chain.push({model: undefined, animationState: 'add'});
+    }
+    setChain(new_chain);
   };
 
   const handleDelete = (index: number) => {
+    console.log("Deleting index", index);
     // Set all nodes from index onwards to delete state
     const indicesToDelete = new Set<number>();
-    for (let i = index; i < chain.length; i++) {
+    for (let i = index; i < chain.length-1; i++) {
       indicesToDelete.add(i);
     }
     setPendingDeletions(indicesToDelete);
 
     setChain(prev => prev.map((item, i) =>
-      i >= index ? { ...item, animationState: 'delete' } : item
+      i >= index && i != chain.length -1 ? { ...item, animationState: 'delete' } : item
     ));
   };
 
@@ -63,20 +67,13 @@ export default function ChainSelector({ availableModels }: ChainSelectorProps) {
       if (allCompleted) {
         // Remove all items that were marked for deletion
         const minIndex = Math.min(...Array.from(pendingDeletions));
-        setChain(prev => prev.slice(0, minIndex));
+        const new_chain = chain.slice(0, minIndex).concat([{model: undefined, animationState: 'idle'}]);
+        setChain(new_chain);
         setPendingDeletions(new Set());
       }
     }
   };
 
-  const handleAddModel = (model: Model) => {
-    setChain(prev => [...prev, { model, animationState: 'add' }]);
-  };
-
-  const handleNewNodeAnimationComplete = () => {
-    // After add animation completes, set state to idle
-    setChain(prev => prev.map(item => ({ ...item, animationState: 'idle' })));
-  };
 
   return (
     <div style={{ padding: '2rem 0', minHeight: '400px', display: 'flex', alignItems: 'center' }}>
@@ -103,15 +100,6 @@ export default function ChainSelector({ availableModels }: ChainSelectorProps) {
             onAnimationComplete={() => handleAnimationComplete(index)}
           />
         ))}
-
-        {/* Empty node to add next model */}
-        <ChainLink
-          models={availableModels}
-          selectedModel={undefined}
-          onSelect={handleAddModel}
-          animationState={chain.length > 0 && chain[chain.length - 1].animationState === 'add' ? 'add' : 'idle'}
-          onAnimationComplete={handleNewNodeAnimationComplete}
-        />
 
         <ArrowLine />
 
