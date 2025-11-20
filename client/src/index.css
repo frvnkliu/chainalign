@@ -130,13 +130,16 @@ a:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
 }
 
 /* Add state - line expands first (0.3s), then node expands (0.3s) */
 .chain-link--add .chain-link__line {
   width: 0;
   animation: lineExpand 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.chain-link--add .chain-link__node-wrapper {
+  overflow: hidden;
 }
 
 /* Empty node expansion (40px) */
@@ -154,6 +157,10 @@ a:hover {
 }
 
 /* Delete state - node shrinks first (0.3s), then line shrinks (0.3s) */
+.chain-link--delete .chain-link__node-wrapper {
+  overflow: hidden;
+}
+
 .chain-link--delete.chain-link--empty .chain-link__node-wrapper {
   animation: nodeShrinkEmpty 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
@@ -175,7 +182,6 @@ a:hover {
   border: 3px solid black;
   background: white;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   min-width: 80px;
   min-height: 80px;
   width: 80px;
@@ -229,6 +235,8 @@ a:hover {
   font-size: 0.75rem;
   text-align: center;
   padding: 0.5rem;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .chain-node__empty-icon {
