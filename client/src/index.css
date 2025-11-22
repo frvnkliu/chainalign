@@ -300,3 +300,30 @@ a:hover {
   background: black;
   color: white;
 }
+
+/* Delete chain button */
+.chain-selector__delete-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: 2px solid black;
+  background: white;
+  color: black;
+  font-size: 0.75rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.chain-selector__delete-btn:hover {
+  background: black;
+  color: white;
+}
+
+.chain-selector__delete-icon {
+  font-size: 1rem;
+  line-height: 1;
+}

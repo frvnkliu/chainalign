@@ -1,4 +1,4 @@
-import ChainSelector from '../components/ChainSelector';
+import MultiChainSelector from '../components/MultiChainSelector';
 
 const AVAILABLE_MODELS = [
   { id: 'gpt4', name: 'GPT-4' },
@@ -24,17 +24,7 @@ export default function Setup() {
         Setup
       </h1>
 
-      <div style={{ marginTop: '3rem' }}>
-        <h2 style={{
-          fontSize: '1.5rem',
-          fontWeight: 'bold',
-          marginBottom: '1.5rem',
-          textTransform: 'uppercase',
-        }}>
-          Select Your Chain
-        </h2>
-        <ChainSelector availableModels={AVAILABLE_MODELS} />
-      </div>
+      <MultiChainSelector availableModels={AVAILABLE_MODELS} />
     </div>
   );
 }

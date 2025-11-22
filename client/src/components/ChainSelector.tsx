@@ -8,6 +8,8 @@ interface Model {
 
 interface ChainSelectorProps {
   availableModels: Model[];
+  models?: Model[];
+  onDeleteChain?: () => void;
 }
 
 interface ChainItem {
@@ -30,8 +32,17 @@ const ArrowLine = () => (
   </div>
 );
 
-export default function ChainSelector({ availableModels }: ChainSelectorProps) {
-  const [chain, setChain] = useState<ChainItem[]>([{model: undefined, animationState: 'add'}]);
+export default function ChainSelector({ availableModels, models, onDeleteChain }: ChainSelectorProps) {
+  const initializeChain = (): ChainItem[] => {
+    if (models && models.length > 0) {
+      return [
+        ...models.map(model => ({ model, animationState: 'idle' as const }))
+      ];
+    }
+    return [{ model: undefined, animationState: 'add' as const }];
+  };
+
+  const [chain, setChain] = useState<ChainItem[]>(initializeChain());
   const [pendingDeletions, setPendingDeletions] = useState<Set<number>>(new Set());
 
   const handleSelect = (index: number, model: Model) => {
@@ -75,7 +86,7 @@ export default function ChainSelector({ availableModels }: ChainSelectorProps) {
 
 
   return (
-    <div style={{ padding: '2rem 0', minHeight: '400px', display: 'flex', alignItems: 'center' }}>
+    <div style={{ padding: '1rem 0', minHeight: '120px', display: 'flex', alignItems: 'center' }}>
       <div
         style={{
           display: 'flex',
@@ -84,6 +95,17 @@ export default function ChainSelector({ availableModels }: ChainSelectorProps) {
           width: '100%',
         }}
       >
+        {onDeleteChain && (
+          <button
+            className="chain-selector__delete-btn"
+            onClick={onDeleteChain}
+            style={{ marginRight: '1rem' }}
+          >
+            <span className="chain-selector__delete-icon">×</span>
+            Delete Chain
+          </button>
+        )}
+
         <div style={{ fontWeight: 'bold', fontSize: '0.875rem', marginRight: '0.5rem' }}>
           INPUT
         </div>

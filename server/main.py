@@ -1,0 +1,103 @@
+from fastapi import FastAPI, HTTPException
+from server.schemas import (
+    StartSessionRequest,
+    StartSessionResponse,
+    ProcessInputRequest,
+    ProcessInputResponse,
+    VoteRequest,
+    VoteResponse,
+)
+import uuid
+
+app = FastAPI(title="ChainAlign Arena API")
+
+# In-memory storage for sessions (replace with database later)
+sessions = {}
+
+
+@app.post("/session/start", response_model=StartSessionResponse)
+async def start_session(request: StartSessionRequest):
+    """
+    Start a new arena session with the provided model chains.
+
+    Creates an arena that will compare outputs from different model chains.
+    """
+    session_id = str(uuid.uuid4())
+
+    # Store session data (dummy for now)
+    sessions[session_id] = {
+        "model_chains": request.model_chains,
+        "matchups": {}
+    }
+
+    return StartSessionResponse(
+        session_id=session_id,
+        num_chains=len(request.model_chains),
+        message=f"Arena session created with {len(request.model_chains)} chains"
+    )
+
+
+@app.post("/session/process", response_model=ProcessInputResponse)
+async def process_input(request: ProcessInputRequest):
+    """
+    Process user input through two randomly selected chains.
+
+    Selects two chains from the arena, feeds the input through them,
+    and returns both outputs for comparison.
+    """
+    if request.session_id not in sessions:
+        raise HTTPException(status_code=404, detail="Session not found")
+
+    matchup_id = str(uuid.uuid4())
+
+    # Store matchup info (dummy for now)
+    sessions[request.session_id]["matchups"][matchup_id] = {
+        "user_input": request.user_input,
+        "chains": ["chain_0", "chain_1"]  # Dummy chain IDs
+    }
+
+    # Return dummy outputs
+    return ProcessInputResponse(
+        session_id=request.session_id,
+        matchup_id=matchup_id,
+        output_a="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+        output_b="Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
+    )
+
+
+@app.post("/session/vote", response_model=VoteResponse)
+async def vote(request: VoteRequest):
+    """
+    Record a vote for which output the user preferred.
+
+    Updates internal ELO ratings and statistics based on the vote.
+    """
+    if request.session_id not in sessions:
+        raise HTTPException(status_code=404, detail="Session not found")
+
+    if request.matchup_id not in sessions[request.session_id]["matchups"]:
+        raise HTTPException(status_code=404, detail="Matchup not found")
+
+    # Validate vote
+    valid_votes = ["A", "B", "tie", "both_bad"]
+    if request.vote not in valid_votes:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid vote. Must be one of: {', '.join(valid_votes)}"
+        )
+
+    # Store vote (dummy for now)
+    sessions[request.session_id]["matchups"][request.matchup_id]["vote"] = request.vote
+
+    return VoteResponse(
+        session_id=request.session_id,
+        matchup_id=request.matchup_id,
+        vote=request.vote,
+        message=f"Vote '{request.vote}' recorded successfully"
+    )
+
+
+@app.get("/health")
+async def health_check():
+    """Health check endpoint."""
+    return {"status": "healthy"}

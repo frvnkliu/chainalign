@@ -1,0 +1,43 @@
+# ChainAlign Server
+
+A FastAPI server for the ChainAlign arena - a tool for comparing and testing different model/prompt chains.
+
+## Structure
+- `arena/` - Core arena logic with ELO rating system
+  - `arena_base.py` - Base arena class with model chain management
+  - `elo.py` - ELO rating calculations
+  - `types.py` - Type definitions (VoteOutcome, etc.)
+- `main.py` - FastAPI application with API endpoints
+- `schemas.py` - Pydantic models for API requests/responses
+
+## API Endpoints
+
+### POST /session/start
+Start a new arena session with model chains.
+- **Input**: List of model chains (list of lists)
+- **Output**: Session ID and arena info
+
+### POST /session/process
+Process user input through two randomly selected chains.
+- **Input**: Session ID and user input text
+- **Output**: Matchup ID and outputs from both chains
+
+### POST /session/vote
+Record a vote for which output was preferred.
+- **Input**: Session ID, matchup ID, vote ("A", "B", "tie", "both_bad")
+- **Output**: Confirmation message
+
+## Setup
+```bash
+# Install dependencies
+pip install -r requirements.txt
+
+# Run server
+uvicorn server.main:app --reload
+```
+
+## Architecture Notes
+- Currently uses in-memory storage (sessions dict)
+- Arena base classes support generic input/output types
+- ELO ratings tracked for both individual models and entire chains
+- Designed for easy extension with real model implementations
