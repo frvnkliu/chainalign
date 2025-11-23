@@ -1,5 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from server.schemas import (
+    ModelResponse,
+    AvailableModelsResponse,
     StartSessionRequest,
     StartSessionResponse,
     ProcessInputRequest,
@@ -7,6 +9,7 @@ from server.schemas import (
     VoteRequest,
     VoteResponse,
 )
+from server.models_registry import get_all_models, get_model_by_id
 import uuid
 
 app = FastAPI(title="ChainAlign Arena API")
@@ -95,6 +98,48 @@ async def vote(request: VoteRequest):
         vote=request.vote,
         message=f"Vote '{request.vote}' recorded successfully"
     )
+
+
+@app.get("/models", response_model=AvailableModelsResponse)
+async def get_available_models():
+    """
+    Get all available models that can be used in chains.
+
+    Returns a list of models with their metadata including:
+    - id: Unique identifier for the model
+    - name: Human-readable display name
+    - provider: The company/organization providing the model
+    - description: Brief description of the model's capabilities
+    - capabilities: List of what the model can do (text-generation, vision, etc.)
+    """
+    models = get_all_models()
+    return AvailableModelsResponse(
+        models=models,
+        count=len(models)
+    )
+
+
+@app.get("/models/{model_id}", response_model=ModelResponse)
+async def get_model_details(model_id: str):
+    """
+    Get detailed information about a specific model.
+
+    Args:
+        model_id: The unique identifier of the model
+
+    Returns:
+        Detailed information about the requested model
+
+    Raises:
+        HTTPException: 404 if model not found
+    """
+    model = get_model_by_id(model_id)
+    if not model:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Model with id '{model_id}' not found"
+        )
+    return model
 
 
 @app.get("/health")
