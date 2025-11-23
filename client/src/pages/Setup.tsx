@@ -15,16 +15,17 @@ export default function Setup() {
     <div style={{
       flex: '1',
       display: 'flex',
-      flexDirection: 'column'   // <-- add this
+      flexDirection: 'column'
     }}>
       <h1 style={{
-        fontSize: '3rem',
+        fontSize: '2rem',
         fontWeight: 'bold',
-        marginBottom: '2rem',
+        paddingTop: '1rem',
+        marginBottom: '1rem',
         textTransform: 'uppercase',
         borderBottom: '3px solid black',
         paddingBottom: '1rem',
-        display: 'block'
+        display: 'block'  // Prevent header from shrinking
       }}>
         Setup
       </h1>
