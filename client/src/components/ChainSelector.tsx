@@ -4,10 +4,10 @@ import { Model, ChainItem } from '../types/chain';
 
 interface ChainSelectorProps {
   availableModels: Model[];
-  models?: Model[];
+  models: Model[];
   onDeleteChain?: () => void;
   chainIndex?: number;
-  onChange?: (models: Model[]) => void;
+  onChange: (models: Model[]) => void;
 }
 
 const ArrowLine = () => (
@@ -27,7 +27,7 @@ const ArrowLine = () => (
 
 export default function ChainSelector({ availableModels, models, onDeleteChain, chainIndex, onChange }: ChainSelectorProps) {
   const initializeChain = (): ChainItem[] => {
-    if (models && models.length > 0) {
+    if (models.length > 0) {
       return [
         ...models.map(model => ({ model, animationState: 'idle' as const })),
         { model: null, animationState: 'add' as const }
@@ -48,25 +48,23 @@ export default function ChainSelector({ availableModels, models, onDeleteChain, 
       return;
     }
 
-    if (models !== undefined) {
-      // Check if models actually changed
-      const currentModels = chain
-        .map(item => item.model)
-        .filter((m): m is Model => m !== null);
+    // Check if models actually changed
+    const currentModels = chain
+      .map(item => item.model)
+      .filter((m): m is Model => m !== null);
 
-      const modelsChanged =
-        models.length !== currentModels.length ||
-        models.some((m, i) => m?.id !== currentModels[i]?.id);
+    const modelsChanged =
+      models.length !== currentModels.length ||
+      models.some((m, i) => m.id !== currentModels[i]?.id);
 
-      if (modelsChanged) {
-        const newChain: ChainItem[] = [
-          ...models.map(model => ({ model, animationState: 'idle' as const })),
-          { model: null, animationState: 'add' as const }
-        ];
-        setChain(newChain);
-      }
+    if (modelsChanged) {
+      const newChain: ChainItem[] = [
+        ...models.map(model => ({ model, animationState: 'idle' as const })),
+        { model: null, animationState: 'add' as const }
+      ];
+      setChain(newChain);
     }
-  }, [models]);
+  }, [models, chain]);
 
   const handleSelect = (index: number, model: Model) => {
     const new_chain = [...chain]
@@ -77,13 +75,11 @@ export default function ChainSelector({ availableModels, models, onDeleteChain, 
     setChain(new_chain);
 
     // Notify parent of model changes
-    if (onChange) {
-      isInternalUpdateRef.current = true;
-      const modelsList = new_chain
-        .map(item => item.model)
-        .filter((m): m is Model => m !== null);
-      onChange(modelsList);
-    }
+    isInternalUpdateRef.current = true;
+    const modelsList = new_chain
+      .map(item => item.model)
+      .filter((m): m is Model => m !== null);
+    onChange(modelsList);
   };
 
   const handleDelete = (index: number) => {
@@ -114,13 +110,11 @@ export default function ChainSelector({ availableModels, models, onDeleteChain, 
         setPendingDeletions(new Set());
 
         // Notify parent of model changes after deletion
-        if (onChange) {
-          isInternalUpdateRef.current = true;
-          const modelsList = new_chain
-            .map(item => item.model)
-            .filter((m): m is Model => m !== null);
-          onChange(modelsList);
-        }
+        isInternalUpdateRef.current = true;
+        const modelsList = new_chain
+          .map(item => item.model)
+          .filter((m): m is Model => m !== null);
+        onChange(modelsList);
       }
     }
   };
