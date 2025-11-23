@@ -86,30 +86,41 @@ export default function ChainSelector({ availableModels, models, onDeleteChain }
 
 
   return (
-    <div style={{ padding: '1rem 0', minHeight: '120px', display: 'flex', alignItems: 'center' }}>
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          width: '100%',
-        }}
-      >
+    <div style={{
+      padding: '1rem 0',
+      minHeight: '120px',
+      display: 'grid',
+      gridTemplateColumns: '1fr auto 1fr',
+      alignItems: 'center',
+      width: '100%'
+    }}>
+      {/* Left side - delete button and INPUT */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'flex-end',
+        gap: '1rem'
+      }}>
         {onDeleteChain && (
           <button
             className="chain-selector__delete-btn"
             onClick={onDeleteChain}
-            style={{ marginRight: '1rem' }}
           >
             <span className="chain-selector__delete-icon">×</span>
             <span className="chain-selector__delete-text">Delete Chain</span>
           </button>
         )}
 
-        <div style={{ fontWeight: 'bold', fontSize: '0.875rem', marginRight: '0.5rem' }}>
+        <div style={{ fontWeight: 'bold', fontSize: '0.875rem' }}>
           INPUT
         </div>
+      </div>
 
+      {/* Center - anchor wrapper for chain + arrow */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center'
+      }}>
         {chain.map((item, index) => (
           <ChainLink
             key={index}
@@ -123,8 +134,15 @@ export default function ChainSelector({ availableModels, models, onDeleteChain }
         ))}
 
         <ArrowLine />
+      </div>
 
-        <div style={{ fontWeight: 'bold', fontSize: '0.875rem', marginLeft: '0.5rem' }}>
+      {/* Right side - OUTPUT */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'flex-start'
+      }}>
+        <div style={{ fontWeight: 'bold', fontSize: '0.875rem' }}>
           OUTPUT
         </div>
       </div>
