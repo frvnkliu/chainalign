@@ -30,10 +30,10 @@ export default function ChainSelector({ availableModels, models, onDeleteChain, 
     if (models && models.length > 0) {
       return [
         ...models.map(model => ({ model, animationState: 'idle' as const })),
-        { model: undefined, animationState: 'add' as const }
+        { model: null, animationState: 'add' as const }
       ];
     }
-    return [{ model: undefined, animationState: 'add' as const }];
+    return [{ model: null, animationState: 'add' as const }];
   };
 
   const [chain, setChain] = useState<ChainItem[]>(initializeChain());
@@ -52,16 +52,16 @@ export default function ChainSelector({ availableModels, models, onDeleteChain, 
       // Check if models actually changed
       const currentModels = chain
         .map(item => item.model)
-        .filter((m): m is Model => m !== undefined);
+        .filter((m): m is Model => m !== null);
 
       const modelsChanged =
         models.length !== currentModels.length ||
-        models.some((m, i) => m.id !== currentModels[i]?.id);
+        models.some((m, i) => m?.id !== currentModels[i]?.id);
 
       if (modelsChanged) {
         const newChain: ChainItem[] = [
           ...models.map(model => ({ model, animationState: 'idle' as const })),
-          { model: undefined, animationState: 'add' as const }
+          { model: null, animationState: 'add' as const }
         ];
         setChain(newChain);
       }
@@ -72,7 +72,7 @@ export default function ChainSelector({ availableModels, models, onDeleteChain, 
     const new_chain = [...chain]
     new_chain[index] = {model, animationState: 'idle'};
     if (index === chain.length - 1) {
-      new_chain.push({model: undefined, animationState: 'add'});
+      new_chain.push({model: null, animationState: 'add'});
     }
     setChain(new_chain);
 
@@ -81,7 +81,7 @@ export default function ChainSelector({ availableModels, models, onDeleteChain, 
       isInternalUpdateRef.current = true;
       const modelsList = new_chain
         .map(item => item.model)
-        .filter((m): m is Model => m !== undefined);
+        .filter((m): m is Model => m !== null);
       onChange(modelsList);
     }
   };
@@ -109,7 +109,7 @@ export default function ChainSelector({ availableModels, models, onDeleteChain, 
       if (allCompleted) {
         // Remove all items that were marked for deletion
         const minIndex = Math.min(...Array.from(pendingDeletions));
-        const new_chain = chain.slice(0, minIndex).concat([{model: undefined, animationState: 'idle'}]);
+        const new_chain = chain.slice(0, minIndex).concat([{model: null, animationState: 'idle'}]);
         setChain(new_chain);
         setPendingDeletions(new Set());
 
@@ -118,7 +118,7 @@ export default function ChainSelector({ availableModels, models, onDeleteChain, 
           isInternalUpdateRef.current = true;
           const modelsList = new_chain
             .map(item => item.model)
-            .filter((m): m is Model => m !== undefined);
+            .filter((m): m is Model => m !== null);
           onChange(modelsList);
         }
       }

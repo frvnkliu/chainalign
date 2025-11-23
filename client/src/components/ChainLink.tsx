@@ -8,7 +8,7 @@ interface Model {
 
 interface ChainLinkProps {
   models: Model[];
-  selectedModel?: Model;
+  selectedModel: Model | null;
   onSelect: (model: Model) => void;
   onDelete?: () => void;
   animationState?: 'add' | 'delete' | 'idle';

@@ -7,7 +7,7 @@ interface Model {
 
 interface ChainNodeProps {
   models: Model[];
-  selectedModel?: Model;
+  selectedModel: Model | null;
   onSelect: (model: Model) => void;
   onDelete?: () => void;
 }

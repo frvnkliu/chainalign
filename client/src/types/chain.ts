@@ -4,7 +4,7 @@ export interface Model {
 }
 
 export interface ChainItem {
-  model: Model | undefined;
+  model: Model | null;
   animationState: 'add' | 'delete' | 'idle';
 }
 

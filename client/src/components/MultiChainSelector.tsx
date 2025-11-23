@@ -108,7 +108,7 @@ export default function MultiChainSelector({
           >
             <ChainSelector
               availableModels={availableModels}
-              models={chain.items.map(item => item.model).filter((m): m is Model => m !== undefined)}
+              models={chain.items.map(item => item.model).filter((m): m is Model => m !== null)}
               onDeleteChain={chains.length > 1 ? () => handleDeleteChain(chain.id) : undefined}
               chainIndex={index + 1}
               onChange={(models) => handleChainChange(chain.id, models)}
