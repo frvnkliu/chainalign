@@ -1,6 +1,15 @@
+export enum MediaType {
+  Text = 'text',
+  Audio = 'audio',
+  Video = 'video',
+  Image = 'image',
+}
+
 export interface Model {
   id: string;
   name: string;
+  inputType: MediaType;
+  outputType: MediaType;
 }
 
 export interface ChainItem {

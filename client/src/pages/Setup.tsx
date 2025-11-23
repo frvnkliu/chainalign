@@ -1,13 +1,14 @@
 import MultiChainSelector from '../components/MultiChainSelector';
+import { MediaType } from '../types/chain';
 
 const AVAILABLE_MODELS = [
-  { id: 'gpt4', name: 'GPT-4' },
-  { id: 'gpt3', name: 'GPT-3.5' },
-  { id: 'claude', name: 'Claude' },
-  { id: 'llama', name: 'Llama' },
-  { id: 'palm', name: 'PaLM' },
-  { id: 'gemini', name: 'Gemini' },
-  { id: 'mistral', name: 'Mistral' },
+  { id: 'gpt4', name: 'GPT-4', inputType: MediaType.Text, outputType: MediaType.Text },
+  { id: 'gpt3', name: 'GPT-3.5', inputType: MediaType.Text, outputType: MediaType.Text },
+  { id: 'claude', name: 'Claude', inputType: MediaType.Text, outputType: MediaType.Text },
+  { id: 'llama', name: 'Llama', inputType: MediaType.Text, outputType: MediaType.Text },
+  { id: 'palm', name: 'PaLM', inputType: MediaType.Text, outputType: MediaType.Text },
+  { id: 'gemini', name: 'Gemini', inputType: MediaType.Text, outputType: MediaType.Text },
+  { id: 'mistral', name: 'Mistral', inputType: MediaType.Text, outputType: MediaType.Text },
 ];
 
 export default function Setup() {

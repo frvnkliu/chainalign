@@ -1,10 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import ChainNode from './ChainNode';
-
-interface Model {
-  id: string;
-  name: string;
-}
+import { Model } from '../types/chain';
 
 interface ChainLinkProps {
   models: Model[];
