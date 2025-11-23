@@ -140,7 +140,7 @@ export default function ChainSelector({ availableModels, models, onDeleteChain, 
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'flex-end',
-        gap: '1rem'
+        gap: '1rem',
       }}>
         {onDeleteChain && (
           <button
@@ -158,7 +158,7 @@ export default function ChainSelector({ availableModels, models, onDeleteChain, 
           </div>
         )}
 
-        <div style={{ fontWeight: 'bold', fontSize: '0.875rem' }}>
+        <div style={{ fontWeight: 'bold', fontSize: '0.875rem', marginRight: '4px' }}>
           INPUT
         </div>
       </div>
@@ -166,7 +166,8 @@ export default function ChainSelector({ availableModels, models, onDeleteChain, 
       {/* Center - anchor wrapper for chain + arrow */}
       <div style={{
         display: 'flex',
-        alignItems: 'center'
+        alignItems: 'center',
+        padding: '0 0 0 6px',
       }}>
         {chain.map((item, index) => (
           <ChainLink
@@ -189,7 +190,7 @@ export default function ChainSelector({ availableModels, models, onDeleteChain, 
         alignItems: 'center',
         justifyContent: 'flex-start'
       }}>
-        <div style={{ fontWeight: 'bold', fontSize: '0.875rem' }}>
+        <div style={{ fontWeight: 'bold', fontSize: '0.875rem', marginLeft: '10px' }}>
           OUTPUT
         </div>
       </div>
