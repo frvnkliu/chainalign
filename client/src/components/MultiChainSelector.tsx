@@ -1,48 +1,69 @@
 import { useState, useRef } from 'react';
 import ChainSelector from './ChainSelector';
-import { Model, ChainItem } from '../types/chain';
+import { Model, ChainItem, ChainWithId } from '../types/chain';
 import './MultiChainSelector.css';
 
 interface MultiChainSelectorProps {
   availableModels: Model[];
-  initialChains?: Model[][];
+  initialChains?: ChainItem[][];
 }
 
 export default function MultiChainSelector({
   availableModels,
   initialChains = []
 }: MultiChainSelectorProps) {
+  const nextChainIdRef = useRef(0);
+
   // Initialize chains from prop
-  const initializeChains = () => {
+  const initializeChains = (): ChainWithId[] => {
     if (initialChains.length === 0) {
-      return [[{ model: undefined, animationState: 'add' as const }]];
+      return [{
+        id: nextChainIdRef.current++,
+        items: []
+      }];
     }
-    return initialChains.map(models =>
-      models.map(model => ({ model, animationState: 'idle' as const }))
-    );
+    return initialChains.map(models => ({
+      id: nextChainIdRef.current++,
+      items: models.map(model => ({ model: model.model, animationState: 'idle' as const }))
+    }));
   };
 
-  const [chains, setChains] = useState<ChainItem[][]>(initializeChains());
+  const [chains, setChains] = useState<ChainWithId[]>(initializeChains());
   const viewportRef = useRef<HTMLDivElement>(null);
 
   // Add new chain
   const handleAddChain = () => {
-    setChains(prev => [...prev, [{ model: undefined, animationState: 'add' }]]);
+    console.log('Adding new chain\n Before:', chains);
+    setChains(prev => [...prev, {
+      id: nextChainIdRef.current++,
+      items: []
+    }]);
+    console.log("After:", chains);
+    
+    // Scroll to bottom to show new chain
+    setTimeout(() => {
+      if (viewportRef.current) {
+        viewportRef.current.scrollTo({
+          top: viewportRef.current.scrollHeight,
+          behavior: 'smooth'
+        });
+      }
+    }, 100);
   };
 
-  // Delete chain by index
-  const handleDeleteChain = (index: number) => {
+  // Delete chain by id
+  const handleDeleteChain = (id: number) => {
     if (chains.length === 1) return; // Don't delete the last chain
-    setChains(prev => prev.filter((_, i) => i !== index));
+    setChains(prev => prev.filter(chain => chain.id !== id));
   };
 
   // Handle changes to individual chain models
-  const handleChainChange = (index: number, models: Model[]) => {
-    setChains(prev => {
-      const newChains = [...prev];
-      newChains[index] = models.map(model => ({ model, animationState: 'idle' as const }));
-      return newChains;
-    });
+  const handleChainChange = (id: number, models: Model[]) => {
+    setChains(prev => prev.map(chain =>
+      chain.id === id
+        ? { ...chain, items: models.map(model => ({ model, animationState: 'idle' as const })) }
+        : chain
+    ));
   };
 
   return (
@@ -52,17 +73,17 @@ export default function MultiChainSelector({
       </h2>
 
       <div className="multi-chain-selector__viewport" ref={viewportRef}>
-        {chains.map((_, index) => (
+        {chains.map((chain, index) => (
           <div
-            key={index}
+            key={chain.id}
             className="multi-chain-selector__chain"
           >
             <ChainSelector
               availableModels={availableModels}
-              models={chains[index].map(item => item.model).filter((m): m is Model => m !== undefined)}
-              onDeleteChain={chains.length > 1 ? () => handleDeleteChain(index) : undefined}
+              models={chain.items.map(item => item.model).filter((m): m is Model => m !== undefined)}
+              onDeleteChain={chains.length > 1 ? () => handleDeleteChain(chain.id) : undefined}
               chainIndex={index + 1}
-              onChange={(models) => handleChainChange(index, models)}
+              onChange={(models) => handleChainChange(chain.id, models)}
             />
           </div>
         ))}

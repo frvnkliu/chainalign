@@ -7,3 +7,8 @@ export interface ChainItem {
   model: Model | undefined;
   animationState: 'add' | 'delete' | 'idle';
 }
+
+export interface ChainWithId {
+  id: number;
+  items: ChainItem[];
+}
