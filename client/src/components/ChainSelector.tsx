@@ -1,20 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import ChainLink from './ChainLink';
-
-interface Model {
-  id: string;
-  name: string;
-}
+import { Model, ChainItem } from '../types/chain';
 
 interface ChainSelectorProps {
   availableModels: Model[];
   models?: Model[];
   onDeleteChain?: () => void;
-}
-
-interface ChainItem {
-  model: Model | undefined;
-  animationState: 'add' | 'delete' | 'idle';
+  chainIndex?: number;
+  onChange?: (models: Model[]) => void;
 }
 
 const ArrowLine = () => (
@@ -32,11 +25,12 @@ const ArrowLine = () => (
   </div>
 );
 
-export default function ChainSelector({ availableModels, models, onDeleteChain }: ChainSelectorProps) {
+export default function ChainSelector({ availableModels, models, onDeleteChain, chainIndex, onChange }: ChainSelectorProps) {
   const initializeChain = (): ChainItem[] => {
     if (models && models.length > 0) {
       return [
-        ...models.map(model => ({ model, animationState: 'idle' as const }))
+        ...models.map(model => ({ model, animationState: 'idle' as const })),
+        { model: undefined, animationState: 'add' as const }
       ];
     }
     return [{ model: undefined, animationState: 'add' as const }];
@@ -44,6 +38,35 @@ export default function ChainSelector({ availableModels, models, onDeleteChain }
 
   const [chain, setChain] = useState<ChainItem[]>(initializeChain());
   const [pendingDeletions, setPendingDeletions] = useState<Set<number>>(new Set());
+  const isInternalUpdateRef = useRef(false);
+
+  // Sync with external models prop changes (only when parent updates)
+  useEffect(() => {
+    // Skip if this update came from our own onChange call
+    if (isInternalUpdateRef.current) {
+      isInternalUpdateRef.current = false;
+      return;
+    }
+
+    if (models !== undefined) {
+      // Check if models actually changed
+      const currentModels = chain
+        .map(item => item.model)
+        .filter((m): m is Model => m !== undefined);
+
+      const modelsChanged =
+        models.length !== currentModels.length ||
+        models.some((m, i) => m.id !== currentModels[i]?.id);
+
+      if (modelsChanged) {
+        const newChain: ChainItem[] = [
+          ...models.map(model => ({ model, animationState: 'idle' as const })),
+          { model: undefined, animationState: 'add' as const }
+        ];
+        setChain(newChain);
+      }
+    }
+  }, [models]);
 
   const handleSelect = (index: number, model: Model) => {
     const new_chain = [...chain]
@@ -52,6 +75,15 @@ export default function ChainSelector({ availableModels, models, onDeleteChain }
       new_chain.push({model: undefined, animationState: 'add'});
     }
     setChain(new_chain);
+
+    // Notify parent of model changes
+    if (onChange) {
+      isInternalUpdateRef.current = true;
+      const modelsList = new_chain
+        .map(item => item.model)
+        .filter((m): m is Model => m !== undefined);
+      onChange(modelsList);
+    }
   };
 
   const handleDelete = (index: number) => {
@@ -80,6 +112,15 @@ export default function ChainSelector({ availableModels, models, onDeleteChain }
         const new_chain = chain.slice(0, minIndex).concat([{model: undefined, animationState: 'idle'}]);
         setChain(new_chain);
         setPendingDeletions(new Set());
+
+        // Notify parent of model changes after deletion
+        if (onChange) {
+          isInternalUpdateRef.current = true;
+          const modelsList = new_chain
+            .map(item => item.model)
+            .filter((m): m is Model => m !== undefined);
+          onChange(modelsList);
+        }
       }
     }
   };
@@ -109,6 +150,12 @@ export default function ChainSelector({ availableModels, models, onDeleteChain }
             <span className="chain-selector__delete-icon">×</span>
             <span className="chain-selector__delete-text">Delete Chain</span>
           </button>
+        )}
+
+        {chainIndex !== undefined && (
+          <div style={{ fontWeight: 'bold', fontSize: '0.875rem', marginRight: '0.5rem' }}>
+            {chainIndex.toString().padStart(2, '0')}.
+          </div>
         )}
 
         <div style={{ fontWeight: 'bold', fontSize: '0.875rem' }}>

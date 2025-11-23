@@ -1,16 +1,7 @@
 import { useState, useRef } from 'react';
 import ChainSelector from './ChainSelector';
+import { Model, ChainItem } from '../types/chain';
 import './MultiChainSelector.css';
-
-interface Model {
-  id: string;
-  name: string;
-}
-
-interface ChainItem {
-  model: Model | undefined;
-  animationState: 'add' | 'delete' | 'idle';
-}
 
 interface MultiChainSelectorProps {
   availableModels: Model[];
@@ -45,6 +36,15 @@ export default function MultiChainSelector({
     setChains(prev => prev.filter((_, i) => i !== index));
   };
 
+  // Handle changes to individual chain models
+  const handleChainChange = (index: number, models: Model[]) => {
+    setChains(prev => {
+      const newChains = [...prev];
+      newChains[index] = models.map(model => ({ model, animationState: 'idle' as const }));
+      return newChains;
+    });
+  };
+
   return (
     <div className="multi-chain-selector">
       <h2 className="multi-chain-selector__heading">
@@ -61,6 +61,8 @@ export default function MultiChainSelector({
               availableModels={availableModels}
               models={chains[index].map(item => item.model).filter((m): m is Model => m !== undefined)}
               onDeleteChain={chains.length > 1 ? () => handleDeleteChain(index) : undefined}
+              chainIndex={index + 1}
+              onChange={(models) => handleChainChange(index, models)}
             />
           </div>
         ))}
