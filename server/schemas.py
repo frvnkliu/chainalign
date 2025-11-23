@@ -1,5 +1,20 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
+
+
+class ModelResponse(BaseModel):
+    """Response containing information about an available model."""
+    id: str
+    name: str
+    provider: str
+    description: Optional[str] = None
+    capabilities: Optional[List[str]] = None
+
+
+class AvailableModelsResponse(BaseModel):
+    """Response containing all available models."""
+    models: List[ModelResponse]
+    count: int
 
 
 class StartSessionRequest(BaseModel):
