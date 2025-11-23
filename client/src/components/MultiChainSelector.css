@@ -1,9 +1,10 @@
 .multi-chain-selector {
-  width: 100%;
-  height: 100%;
   display: flex;
+  flex: 1 1 0%;
   flex-direction: column;
   align-items: center;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .multi-chain-selector__heading {
@@ -15,7 +16,7 @@
 
 .multi-chain-selector__viewport {
   width: 100%;
-  flex: 1;
+  flex: 1 1 0%;
   overflow: hidden;
   display: flex;
   flex-direction: column;

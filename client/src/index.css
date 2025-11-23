@@ -26,6 +26,10 @@ a:hover {
   color: white;
 }
 
+main {
+  display: flex;
+}
+
 /* Chain Node Animations */
 @keyframes nodeExpandEmpty {
   0% {

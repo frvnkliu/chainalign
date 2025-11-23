@@ -12,7 +12,11 @@ const AVAILABLE_MODELS = [
 
 export default function Setup() {
   return (
-    <div>
+    <div style={{
+      flex: '1',
+      display: 'flex',
+      flexDirection: 'column'   // <-- add this
+    }}>
       <h1 style={{
         fontSize: '3rem',
         fontWeight: 'bold',
@@ -20,6 +24,7 @@ export default function Setup() {
         textTransform: 'uppercase',
         borderBottom: '3px solid black',
         paddingBottom: '1rem',
+        display: 'block'
       }}>
         Setup
       </h1>

@@ -91,13 +91,10 @@ export default function MultiChainSelector({
       visibleIndices.push(i);
     }
 
-    // Add "add chain" indicator if we're viewing the last chain
-    const showAddIndicator = activeChainIndex >= chains.length - 2;
-
-    return { visibleIndices, showAddIndicator };
+    return visibleIndices ;
   };
 
-  const { visibleIndices, showAddIndicator } = getVisibleChains();
+  const visibleIndices = getVisibleChains();
 
   // Calculate opacity based on distance from active chain
   const getOpacity = (index: number) => {
@@ -147,14 +144,12 @@ export default function MultiChainSelector({
       </div>
 
       <div className="multi-chain-selector__add-area">
-        {showAddIndicator && (
-          <div
-            className="multi-chain-selector__add-indicator"
-            onClick={handleAddChain}
-          >
-            <div className="multi-chain-selector__add-text">+ Add New Chain</div>
-          </div>
-        )}
+        <div
+          className="multi-chain-selector__add-indicator"
+          onClick={handleAddChain}
+        >
+          <div className="multi-chain-selector__add-text">+ Add New Chain</div>
+        </div>
       </div>
 
       <div className="multi-chain-selector__counter-area">
