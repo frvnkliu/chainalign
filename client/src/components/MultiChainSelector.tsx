@@ -143,16 +143,14 @@ export default function MultiChainSelector({
         </div>
       </div>
 
-      <div className="multi-chain-selector__add-area">
+      <div className="multi-chain-selector__footer">
         <div
           className="multi-chain-selector__add-indicator"
           onClick={handleAddChain}
         >
           <div className="multi-chain-selector__add-text">+ Add New Chain</div>
         </div>
-      </div>
 
-      <div className="multi-chain-selector__counter-area">
         <div className="multi-chain-selector__counter">
           Chain {activeChainIndex + 1} of {chains.length}
         </div>

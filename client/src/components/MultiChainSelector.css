@@ -16,20 +16,23 @@
 
 .multi-chain-selector__viewport {
   width: 100%;
-  flex: 1 1 0%;
-  overflow: hidden;
+  flex: 1 1 auto;
   display: flex;
-  flex-direction: column;
+  overflow: hidden;
   align-items: center;
   justify-content: center;
+  min-height: 0;
 }
 
 .multi-chain-selector__container {
   display: flex;
   flex-direction: column;
   align-items: center;
+  overflow: hidden;
+  justify-content: center;
   gap: 2rem;
   width: 100%;
+  min-height: 0;
 }
 
 .multi-chain-selector__chain {
@@ -51,13 +54,14 @@
   opacity: 0.9 !important;
 }
 
-/* Add chain area - fixed height container */
-.multi-chain-selector__add-area {
-  min-height: 80px;
+/* Footer - combined add and counter area */
+.multi-chain-selector__footer {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  gap: 1rem;
   margin-top: auto;
+  padding: 1rem 0;
 }
 
 /* Add chain indicator */
@@ -82,14 +86,6 @@
   font-weight: bold;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-}
-
-/* Chain counter area - fixed height container */
-.multi-chain-selector__counter-area {
-  min-height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 /* Chain counter */
