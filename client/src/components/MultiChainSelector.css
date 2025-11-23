@@ -16,42 +16,36 @@
 
 .multi-chain-selector__viewport {
   width: 100%;
-  flex: 1 1 auto;
+  height: 50vh;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
   display: flex;
-  overflow: hidden;
   align-items: center;
   justify-content: center;
-  min-height: 0;
-}
-
-.multi-chain-selector__container {
-  display: flex;
   flex-direction: column;
-  align-items: center;
-  overflow: hidden;
-  justify-content: center;
-  gap: 2rem;
-  width: 100%;
-  min-height: 0;
 }
 
 .multi-chain-selector__chain {
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
   width: 100%;
+  padding: 2rem 0;
 }
 
 .multi-chain-selector__chain--active {
   cursor: default;
 }
 
-/* Prevent interaction with chain content until it's selected */
+/* Non-active chains are clickable to select them */
 .multi-chain-selector__chain:not(.multi-chain-selector__chain--active) > * {
   pointer-events: none;
-}
-
-.multi-chain-selector__chain:not(.multi-chain-selector__chain--active):hover {
-  opacity: 0.9 !important;
 }
 
 /* Footer - combined add and counter area */

@@ -309,25 +309,54 @@ main {
 .chain-selector__delete-btn {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
+  justify-content: center;
+  gap: 0;
+  padding: 0;
   border: 2px solid black;
   background: white;
   color: black;
   font-size: 0.75rem;
   font-weight: bold;
   cursor: pointer;
-  transition: all 0.15s ease;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  white-space: nowrap;
+  width: 20px;
+  height: 20px;
+  line-height: 1;
 }
 
 .chain-selector__delete-btn:hover {
-  background: black;
+  background: red;
   color: white;
+  gap: 0;
+  padding: 0.5rem 1rem;
+  width: auto;
+  height: auto;
+}
+
+.chain-selector__delete-btn:hover .chain-selector__delete-icon {
+  display: none;
 }
 
 .chain-selector__delete-icon {
-  font-size: 1rem;
+  font-size: 0.75rem;
   line-height: 1;
+  flex-shrink: 0;
+}
+
+.chain-selector__delete-text {
+  display: inline-block;
+  width: 0;
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease, width 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.chain-selector__delete-btn:hover .chain-selector__delete-text {
+  width: auto;
+  opacity: 1;
 }

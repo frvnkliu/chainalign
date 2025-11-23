@@ -102,7 +102,7 @@ export default function ChainSelector({ availableModels, models, onDeleteChain }
             style={{ marginRight: '1rem' }}
           >
             <span className="chain-selector__delete-icon">×</span>
-            Delete Chain
+            <span className="chain-selector__delete-text">Delete Chain</span>
           </button>
         )}
 
