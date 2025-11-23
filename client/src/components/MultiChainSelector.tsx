@@ -14,8 +14,9 @@ export default function MultiChainSelector({
 }: MultiChainSelectorProps) {
   const nextChainIdRef = useRef(0);
 
-  // Initialize chains from prop
-  const initializeChains = (): ChainWithId[] => {
+  // Initialize chains from prop - ref access is intentional for ID generation
+  // eslint-disable-next-line react-hooks/refs
+  const [chains, setChains] = useState<ChainWithId[]>(() => {
     if (initialChains.length === 0) {
       return [{
         id: nextChainIdRef.current++,
@@ -26,9 +27,7 @@ export default function MultiChainSelector({
       id: nextChainIdRef.current++,
       items: models.map(model => ({ model: model.model, animationState: 'idle' as const }))
     }));
-  };
-
-  const [chains, setChains] = useState<ChainWithId[]>(initializeChains());
+  });
   const viewportRef = useRef<HTMLDivElement>(null);
 
   // Center first chain on mount

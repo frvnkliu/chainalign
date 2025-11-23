@@ -41,6 +41,7 @@ export default function ChainSelector({ availableModels, models, onDeleteChain, 
   const isInternalUpdateRef = useRef(false);
 
   // Sync with external models prop changes (only when parent updates)
+  // This effect is necessary to keep child state synchronized with parent props
   useEffect(() => {
     // Skip if this update came from our own onChange call
     if (isInternalUpdateRef.current) {
@@ -48,23 +49,26 @@ export default function ChainSelector({ availableModels, models, onDeleteChain, 
       return;
     }
 
-    // Check if models actually changed
-    const currentModels = chain
-      .map(item => item.model)
-      .filter((m): m is Model => m !== null);
+    // Check if models actually changed - use functional setState to avoid chain dependency
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setChain(prevChain => {
+      const currentModels = prevChain
+        .map(item => item.model)
+        .filter((m): m is Model => m !== null);
 
-    const modelsChanged =
-      models.length !== currentModels.length ||
-      models.some((m, i) => m.id !== currentModels[i]?.id);
+      const modelsChanged =
+        models.length !== currentModels.length ||
+        models.some((m, i) => m.id !== currentModels[i]?.id);
 
-    if (modelsChanged) {
-      const newChain: ChainItem[] = [
-        ...models.map(model => ({ model, animationState: 'idle' as const })),
-        { model: null, animationState: 'add' as const }
-      ];
-      setChain(newChain);
-    }
-  }, [models, chain]);
+      if (modelsChanged) {
+        return [
+          ...models.map(model => ({ model, animationState: 'idle' as const })),
+          { model: null, animationState: 'add' as const }
+        ];
+      }
+      return prevChain;
+    });
+  }, [models]);
 
   const handleSelect = (index: number, model: Model) => {
     const new_chain = [...chain]
