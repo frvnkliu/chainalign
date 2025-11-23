@@ -23,12 +23,41 @@ FastAPI backend for the ChainAlign arena system.
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
+| `/models` | GET | Get all available models |
+| `/models/{model_id}` | GET | Get details for a specific model |
 | `/session/start` | POST | Create a new arena session |
 | `/session/process` | POST | Process input through two chains |
 | `/session/vote` | POST | Vote on preferred output |
 | `/health` | GET | Health check |
 
 ## Example Usage
+
+### Get Available Models
+```bash
+curl http://localhost:8000/models
+```
+
+Response:
+```json
+{
+  "models": [
+    {
+      "id": "gpt-4",
+      "name": "GPT-4",
+      "provider": "OpenAI",
+      "description": "Most capable OpenAI model, best for complex tasks",
+      "capabilities": ["text-generation", "reasoning", "coding"]
+    },
+    ...
+  ],
+  "count": 14
+}
+```
+
+### Get Specific Model
+```bash
+curl http://localhost:8000/models/gpt-4
+```
 
 ### Start a Session
 ```bash
@@ -71,8 +100,10 @@ server/
 ├── arena/              # Arena core logic
 │   ├── arena_base.py  # Base arena classes
 │   ├── elo.py         # ELO calculations
-│   └── types.py       # Type definitions
+│   ├── types.py       # Type definitions
+│   └── CONTEXT.md     # Comprehensive system documentation
 ├── main.py            # FastAPI app
+├── models_registry.py # Available models registry
 ├── schemas.py         # Request/response models
 ├── requirements.txt   # Python dependencies
 └── README.md          # This file
