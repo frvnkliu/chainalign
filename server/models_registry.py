@@ -1,6 +1,6 @@
 """Registry of available LLM models for the ChainAlign arena."""
 
-from schemas import ModelResponse
+from server.schemas import ModelResponse
 
 # Central registry of all available models
 AVAILABLE_MODELS = [
