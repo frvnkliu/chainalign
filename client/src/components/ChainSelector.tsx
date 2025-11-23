@@ -87,12 +87,12 @@ export default function ChainSelector({ availableModels, models, onDeleteChain }
 
   return (
     <div style={{
-      padding: '1rem 0',
       minHeight: '120px',
       display: 'grid',
       gridTemplateColumns: '1fr auto 1fr',
       alignItems: 'center',
-      width: '100%'
+      width: '100%',
+      padding: '1rem 0',
     }}>
       {/* Left side - delete button and INPUT */}
       <div style={{

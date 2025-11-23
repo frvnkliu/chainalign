@@ -34,18 +34,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
   width: 100%;
   padding: 2rem 0;
-}
-
-.multi-chain-selector__chain--active {
-  cursor: default;
-}
-
-/* Non-active chains are clickable to select them */
-.multi-chain-selector__chain:not(.multi-chain-selector__chain--active) > * {
-  pointer-events: none;
 }
 
 /* Footer - combined add and counter area */

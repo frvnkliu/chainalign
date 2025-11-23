@@ -26,8 +26,9 @@ a:hover {
   color: white;
 }
 
-main {
+main{
   display: flex;
+  padding: 0 2rem;
 }
 
 /* Chain Node Animations */
@@ -324,6 +325,12 @@ main {
   width: 20px;
   height: 20px;
   line-height: 1;
+  opacity: 0;
+}
+
+.multi-chain-selector__chain:hover .chain-selector__delete-btn {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .chain-selector__delete-btn:hover {

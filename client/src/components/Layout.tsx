@@ -14,7 +14,7 @@ export default function Layout() {
         <Link to="/compare">COMPARE</Link>
       </nav>
 
-      <main style={{ flex: 1, padding: '2rem' }}>
+      <main>
         <Outlet />
       </main>
     </div>
