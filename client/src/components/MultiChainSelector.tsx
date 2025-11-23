@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import ChainSelector from './ChainSelector';
 import { Model, ChainItem, ChainWithId } from '../types/chain';
 import './MultiChainSelector.css';
@@ -30,6 +30,16 @@ export default function MultiChainSelector({
 
   const [chains, setChains] = useState<ChainWithId[]>(initializeChains());
   const viewportRef = useRef<HTMLDivElement>(null);
+
+  // Center first chain on mount
+  useEffect(() => {
+    if (viewportRef.current) {
+      const firstChain = viewportRef.current.querySelector('.multi-chain-selector__chain');
+      if (firstChain) {
+        firstChain.scrollIntoView({ block: 'center' });
+      }
+    }
+  }, []);
 
   // Add new chain
   const handleAddChain = () => {
