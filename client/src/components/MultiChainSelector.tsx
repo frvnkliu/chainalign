@@ -43,12 +43,10 @@ export default function MultiChainSelector({
 
   // Add new chain
   const handleAddChain = () => {
-    console.log('Adding new chain\n Before:', chains);
     setChains(prev => [...prev, {
       id: nextChainIdRef.current++,
       items: []
     }]);
-    console.log("After:", chains);
     
     // Scroll to bottom to show new chain
     setTimeout(() => {
@@ -64,7 +62,27 @@ export default function MultiChainSelector({
   // Delete chain by id
   const handleDeleteChain = (id: number) => {
     if (chains.length === 1) return; // Don't delete the last chain
+
+    // Find the index of the chain being deleted
+    const deletedIndex = chains.findIndex(chain => chain.id === id);
+
     setChains(prev => prev.filter(chain => chain.id !== id));
+
+    // Scroll to nearest chain after deletion (prefer above, then below)
+    setTimeout(() => {
+      if (viewportRef.current) {
+        const allChains = viewportRef.current.querySelectorAll('.multi-chain-selector__chain');
+
+        // Prefer the chain that was above (now at deletedIndex - 1)
+        // If none above, use the chain that was below (now at deletedIndex)
+        const targetIndex = deletedIndex > 0 ? deletedIndex - 1 : 0;
+        const targetChain = allChains[targetIndex];
+
+        if (targetChain) {
+          targetChain.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        }
+      }
+    }, 50);
   };
 
   // Handle changes to individual chain models

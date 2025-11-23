@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 interface Model {
   id: string;
@@ -15,6 +15,24 @@ interface ChainNodeProps {
 export default function ChainNode({ models, selectedModel, onSelect, onDelete }: ChainNodeProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
+  const allowHoverExpansionRef = useRef(true);
+
+  // Temporarily disable hover expansion on mount (in case element appeared under cursor via scroll)
+  useEffect(() => {
+    allowHoverExpansionRef.current = false;
+    const timer = setTimeout(() => {
+      allowHoverExpansionRef.current = true;
+    }, 500); // Wait 500ms after mount before allowing hover expansion
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Debug: Log when hover state actually changes
+  useEffect(() => {
+    console.log("isHovering changed to:", isHovering);
+    console.log("isExpanded:", isExpanded);
+    console.log("shouldExpandOnHover:", !selectedModel);
+  }, [isHovering, isExpanded, selectedModel]);
 
   const groupIntoRows = (items: Model[]) => {
     const rows: Model[][] = [];
@@ -29,8 +47,11 @@ export default function ChainNode({ models, selectedModel, onSelect, onDelete }:
   const shouldShowExpanded = isExpanded;
 
   const handleMouseEnter = () => {
+    console.log("Mouse entered, shouldExpandOnHover:", shouldExpandOnHover, "allowHover:", allowHoverExpansionRef.current);
     setIsHovering(true);
-    if (shouldExpandOnHover) setIsExpanded(true);
+    if (shouldExpandOnHover && allowHoverExpansionRef.current) {
+      setIsExpanded(true);
+    }
   };
 
   const handleMouseLeave = () => {
