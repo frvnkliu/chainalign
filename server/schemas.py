@@ -1,5 +1,14 @@
 from pydantic import BaseModel
 from typing import List, Optional
+from enum import Enum
+
+
+class MediaType(str, Enum):
+    """Media types for model inputs and outputs."""
+    TEXT = "text"
+    AUDIO = "audio"
+    VIDEO = "video"
+    IMAGE = "image"
 
 
 class ModelResponse(BaseModel):
@@ -7,6 +16,8 @@ class ModelResponse(BaseModel):
     id: str
     name: str
     provider: str
+    input_type: MediaType
+    output_type: MediaType
     description: Optional[str] = None
     capabilities: Optional[List[str]] = None
 

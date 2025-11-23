@@ -1,17 +1,28 @@
+import { useState, useEffect } from 'react';
 import MultiChainSelector from '../components/MultiChainSelector';
-import { MediaType } from '../types/chain';
-
-const AVAILABLE_MODELS = [
-  { id: 'gpt4', name: 'GPT-4', inputType: MediaType.Text, outputType: MediaType.Text },
-  { id: 'gpt3', name: 'GPT-3.5', inputType: MediaType.Text, outputType: MediaType.Text },
-  { id: 'claude', name: 'Claude', inputType: MediaType.Text, outputType: MediaType.Text },
-  { id: 'llama', name: 'Llama', inputType: MediaType.Text, outputType: MediaType.Text },
-  { id: 'palm', name: 'PaLM', inputType: MediaType.Text, outputType: MediaType.Text },
-  { id: 'gemini', name: 'Gemini', inputType: MediaType.Text, outputType: MediaType.Text },
-  { id: 'mistral', name: 'Mistral', inputType: MediaType.Text, outputType: MediaType.Text },
-];
+import { fetchAvailableModels } from '../api/models';
+import { Model } from '../types/chain';
 
 export default function Setup() {
+  const [models, setModels] = useState<Model[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function loadModels() {
+      try {
+        const availableModels = await fetchAvailableModels();
+        setModels(availableModels);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load models');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadModels();
+  }, []);
+
   return (
     <div style={{
       flex: '1',
@@ -26,12 +37,14 @@ export default function Setup() {
         textTransform: 'uppercase',
         borderBottom: '3px solid black',
         paddingBottom: '1rem',
-        display: 'block'  // Prevent header from shrinking
+        display: 'block'
       }}>
         Setup
       </h1>
 
-      <MultiChainSelector availableModels={AVAILABLE_MODELS} />
+      {loading && <div>Loading models...</div>}
+      {error && <div style={{ color: 'red' }}>Error: {error}</div>}
+      {!loading && !error && <MultiChainSelector availableModels={models} />}
     </div>
   );
 }

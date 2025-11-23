@@ -8,6 +8,7 @@ export enum MediaType {
 export interface Model {
   id: string;
   name: string;
+  provider: string;
   inputType: MediaType;
   outputType: MediaType;
 }
