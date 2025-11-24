@@ -32,13 +32,6 @@ export default function ChainNode({ models, selectedModel, onSelect, onDelete }:
     }
   }, [isExpanded]);
 
-  // Debug: Log when hover state actually changes
-  useEffect(() => {
-    console.log("isHovering changed to:", isHovering);
-    console.log("isExpanded:", isExpanded);
-    console.log("shouldExpandOnHover:", !selectedModel);
-  }, [isHovering, isExpanded, selectedModel]);
-
   const groupIntoRows = (items: Model[]) => {
     const rows: Model[][] = [];
     for (let i = 0; i < items.length; i += 3) {

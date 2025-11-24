@@ -8,7 +8,7 @@ interface ChainLinkProps {
   onSelect: (model: Model) => void;
   onDelete?: () => void;
   animationState?: 'add' | 'delete' | 'idle';
-  onAnimationComplete?: () => void;
+  onAnimationComplete: () => void;
 }
 
 export default function ChainLink({
@@ -20,37 +20,34 @@ export default function ChainLink({
   onAnimationComplete,
 }: ChainLinkProps) {
   const [currentState, setCurrentState] = useState<'add' | 'delete' | 'idle'>(animationState);
-  const linkRef = useRef<HTMLDivElement>(null);
+  const animationCountRef = useRef(0);
 
   useEffect(() => {
     setCurrentState(animationState);
+    animationCountRef.current = 0; // Reset count when animation state changes
   }, [animationState]);
 
-  useEffect(() => {
+  const handleAnimationEnd = (e: React.AnimationEvent) => {
+    // Only count animations from direct children (line and node-wrapper)
+    const target = e.target as HTMLElement;
+    const isLineOrNodeWrapper =
+      target.classList.contains('chain-link__line') ||
+      target.classList.contains('chain-link__node-wrapper');
+
+    if (!isLineOrNodeWrapper) return;
+
     if (currentState === 'idle') return;
 
-    let animationCount = 0;
-    const expectedAnimations = 2; // Line + Node
+    animationCountRef.current++;
+    console.log('Animation end count:', animationCountRef.current, 'current state:', currentState);
 
-    const handleAnimationEnd = () => {
-      animationCount++;
-
-      // Only complete after both line and node animations finish
-      if (animationCount >= expectedAnimations) {
-        setCurrentState('idle');
-        onAnimationComplete?.();
-      }
-    };
-
-    const element = linkRef.current;
-    if (!element) return;
-
-    element.addEventListener('animationend', handleAnimationEnd);
-
-    return () => {
-      element.removeEventListener('animationend', handleAnimationEnd);
-    };
-  }, [currentState, onAnimationComplete]);
+    // Both line and node animations need to complete
+    if (animationCountRef.current >= 2) {
+      animationCountRef.current = 0;
+      setCurrentState('idle');
+      onAnimationComplete();
+    }
+  };
 
   const linkClasses = [
     'chain-link',
@@ -60,7 +57,7 @@ export default function ChainLink({
   ].filter(Boolean).join(' ');
 
   return (
-    <div ref={linkRef} className={linkClasses}>
+    <div className={linkClasses} onAnimationEnd={handleAnimationEnd}>
       <div className="chain-link__line" />
 
       <div className="chain-link__node-wrapper">
