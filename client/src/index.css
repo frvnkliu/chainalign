@@ -337,6 +337,10 @@ main{
   pointer-events: none;
   opacity: 0;
   animation: fadeInPagination 0.2s ease 0.3s forwards;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 @keyframes fadeInPagination {
