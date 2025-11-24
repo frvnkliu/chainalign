@@ -39,7 +39,6 @@ export default function ChainLink({
     if (currentState === 'idle') return;
 
     animationCountRef.current++;
-    console.log('Animation end count:', animationCountRef.current, 'current state:', currentState);
 
     // Both line and node animations need to complete
     if (animationCountRef.current >= 2) {

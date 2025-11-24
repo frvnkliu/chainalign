@@ -337,7 +337,7 @@ main{
   justify-content: space-between;
   pointer-events: none;
   opacity: 0;
-  animation: fadeInPagination 0.2s ease 0.3s forwards;
+  animation: fadeInPagination 0.1s ease 0.3s forwards;
   user-select: none;
   -webkit-user-select: none;
   -moz-user-select: none;

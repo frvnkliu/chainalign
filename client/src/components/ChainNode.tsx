@@ -25,12 +25,20 @@ export default function ChainNode({ models, selectedModel, onSelect, onDelete }:
     return () => clearTimeout(timer);
   }, []);
 
-  // Reset to page 0 when expanded state changes
+  // Set page to selected model's page when expanding
   useEffect(() => {
-    if (isExpanded) {
+    if (isExpanded && selectedModel) {
+      const modelIndex = models.findIndex(m => m.id === selectedModel.id);
+      if (modelIndex !== -1) {
+        const pageOfSelectedModel = Math.floor(modelIndex / ITEMS_PER_PAGE);
+        setCurrentPage(pageOfSelectedModel);
+      } else {
+        setCurrentPage(0);
+      }
+    } else if (isExpanded) {
       setCurrentPage(0);
     }
-  }, [isExpanded]);
+  }, [isExpanded, selectedModel, models]);
 
   const groupIntoRows = (items: Model[]) => {
     const rows: Model[][] = [];
@@ -72,7 +80,6 @@ export default function ChainNode({ models, selectedModel, onSelect, onDelete }:
   };
 
   const handleMouseEnter = () => {
-    console.log("Mouse entered, shouldExpandOnHover:", shouldExpandOnHover, "allowHover:", allowHoverExpansionRef.current);
     setIsHovering(true);
     if (shouldExpandOnHover && allowHoverExpansionRef.current) {
       setIsExpanded(true);
