@@ -74,13 +74,26 @@ export default function ChainSelector({ availableModels, models, onDeleteChain, 
     const new_chain = [...chain]
     new_chain[index] = {model, animationState: 'idle'};
 
-    // Only add trailing node if there are compatible models for the next position
+    const hasCompatibleModels = availableModels.some(m => m.inputType === model.outputType);
+
+    // Handle trailing node logic
     if (index === chain.length - 1) {
-      const hasCompatibleModels = availableModels.some(m => m.inputType === model.outputType);
+      // Selecting on the last node
       if (hasCompatibleModels) {
         new_chain.push({model: null, animationState: 'add'});
       }
+    } else if (index === chain.length - 2) {
+      // Selecting on second-to-last node with a trailing empty node
+      const hasTrailingEmpty = !chain[chain.length - 1].model;
+      if (hasTrailingEmpty) {
+        if (!hasCompatibleModels) {
+          // Remove trailing empty node with animation
+          new_chain[chain.length - 1] = {...new_chain[chain.length - 1], animationState: 'delete'};
+          setPendingDeletions(new Set([chain.length - 1]));
+        }
+      }
     }
+
     setChain(new_chain);
 
     // Notify parent of model changes
@@ -128,8 +141,10 @@ export default function ChainSelector({ availableModels, models, onDeleteChain, 
         const hasTrailingEmptyNode = chain.length > minIndex && !chain[chain.length - 1].model;
 
         if (hasTrailingEmptyNode) {
-          // Keep the existing trailing empty node
-          new_chain.push({model: null, animationState: 'idle'});
+          if (minIndex !== chain.length - 1) {
+            // Keep the existing trailing empty node only if we didn't specifically delete it
+            new_chain.push({model: null, animationState: 'idle'});
+          }
         } else {
           // Add new trailing "add" node
           new_chain.push({model: null, animationState: 'add'});
@@ -148,12 +163,24 @@ export default function ChainSelector({ availableModels, models, onDeleteChain, 
     }
   };
 
-  // Filter available models based on previous node's output type
+  // Filter available models based on previous node's output type and next node's input type
   const getFilteredModelsForIndex = (index: number): Model[] => {
-    if (index === 0) return availableModels; // First node: all models available
-    const prevModel = chain[index - 1]?.model;
-    if (!prevModel) return []; // No previous model selected yet
-    return availableModels.filter(m => m.inputType === prevModel.outputType);
+    let filtered = availableModels;
+
+    // Filter by previous node's output type
+    if (index > 0) {
+      const prevModel = chain[index - 1]?.model;
+      if (!prevModel) return []; // No previous model selected yet
+      filtered = filtered.filter(m => m.inputType === prevModel.outputType);
+    }
+
+    // Filter by next node's input type (if next node has a model selected)
+    const nextModel = chain[index + 1]?.model;
+    if (nextModel) {
+      filtered = filtered.filter(m => m.outputType === nextModel.inputType);
+    }
+
+    return filtered;
   };
 
   // Get chain's overall input and output types
