@@ -15,7 +15,7 @@ export interface Model {
 
 export interface ChainItem {
   model: Model | null;
-  animationState: 'add' | 'delete' | 'idle';
+  animationState: 'add' | 'delete' | 'idle' | 'clear';
 }
 
 export interface ChainWithId {

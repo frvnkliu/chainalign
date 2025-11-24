@@ -72,26 +72,72 @@ export default function ChainSelector({ availableModels, models, onDeleteChain, 
   }, [models]);
 
   const handleSelect = (index: number, model: Model) => {
-    const new_chain = [...chain]
-    new_chain[index] = {model, animationState: 'idle'};
-
     const hasCompatibleModels = availableModels.some(m => m.inputType === model.outputType);
 
-    // Handle trailing node logic
-    if (index === chain.length - 1) {
-      // Selecting on the last node
-      if (hasCompatibleModels) {
-        new_chain.push({model: null, animationState: 'add'});
-      }
-    } else if (index === chain.length - 2) {
-      // Selecting on second-to-last node with a trailing empty node
-      const hasTrailingEmpty = !chain[chain.length - 1].model;
-      if (hasTrailingEmpty) {
-        if (!hasCompatibleModels) {
-          // Remove trailing empty node with animation
-          new_chain[chain.length - 1] = {...new_chain[chain.length - 1], animationState: 'delete'};
-          setPendingDeletions(new Set([chain.length - 1]));
+    // Check if there's a next node with a model that's incompatible
+    const nextNode = chain[index + 1];
+    const hasIncompatibleNext = nextNode?.model && nextNode.model.inputType !== model.outputType;
+
+    if (hasIncompatibleNext) {
+      // Build new chain with updated model at index
+      const new_chain = chain.map((item, i) =>
+        i === index ? { model, animationState: 'idle' as const } : item
+      );
+
+      // Set up deletion animation for all nodes after current
+      const indicesToDelete = new Set<number>();
+      const hasTrailingEmpty = !chain[chain.length - 1]?.model;
+      const shouldMorphLastNode = !hasTrailingEmpty;
+
+      for (let i = index + 1; i < chain.length; i++) {
+        if (hasTrailingEmpty && i === chain.length - 1) {
+          continue;
         }
+        if (shouldMorphLastNode && i === chain.length - 1) {
+          continue;
+        }
+        indicesToDelete.add(i);
+      }
+
+      setPendingDeletions(indicesToDelete);
+
+      const updated_chain = new_chain.map((item, i) => {
+        if (hasTrailingEmpty && i === chain.length - 1) {
+          return item;
+        }
+        if (shouldMorphLastNode && i === chain.length - 1) {
+          return { ...item, animationState: 'clear' as const };
+        }
+        return i > index ? { ...item, animationState: 'delete' as const } : item;
+      });
+
+      setChain(updated_chain);
+
+      // Don't notify parent yet - wait for animation to complete
+      return;
+    }
+
+    // Build new chain with the selected model
+    const new_chain = [...chain];
+    new_chain[index] = {model, animationState: 'idle'};
+
+    // Check if there's currently a trailing empty node
+    const hasTrailingEmpty = chain.length > index + 1 && !chain[chain.length - 1]?.model;
+
+    // Handle trailing node logic
+    if (hasTrailingEmpty) {
+      // There's already a trailing empty node
+      if (!hasCompatibleModels) {
+        // No compatible models - remove the trailing empty node with animation
+        new_chain[chain.length - 1] = {...new_chain[chain.length - 1], animationState: 'delete'};
+        setPendingDeletions(new Set([chain.length - 1]));
+      }
+      // If there are compatible models, keep the trailing empty node
+    } else {
+      // No trailing empty node
+      if (index === chain.length - 1 && hasCompatibleModels) {
+        // Selecting on the last node and there are compatible models - add trailing empty node
+        new_chain.push({model: null, animationState: 'add'});
       }
     }
 
@@ -106,61 +152,117 @@ export default function ChainSelector({ availableModels, models, onDeleteChain, 
   };
 
   const handleDelete = (index: number) => {
-    // Set all nodes from index onwards to delete state (except trailing empty "add" node)
     const indicesToDelete = new Set<number>();
+    const hasTrailingEmpty = !chain[chain.length - 1]?.model;
+
+    // Determine if we need to morph the last selected node into an empty node
+    const shouldMorphLastNode = !hasTrailingEmpty;
+
     for (let i = index; i < chain.length; i++) {
-      // Skip the last node if it's an empty "add" node
-      if (i === chain.length - 1 && !chain[i].model) {
+      // If we have a trailing empty node, skip it
+      if (hasTrailingEmpty && i === chain.length - 1) {
+        continue;
+      }
+      // If morphing, don't delete the last node - we'll clear it instead
+      if (shouldMorphLastNode && i === chain.length - 1) {
         continue;
       }
       indicesToDelete.add(i);
     }
+
     setPendingDeletions(indicesToDelete);
 
     setChain(prev => prev.map((item, i) => {
-      // Skip the last node if it's an empty "add" node
-      if (i === chain.length - 1 && !chain[i].model) {
+      // Skip trailing empty node
+      if (hasTrailingEmpty && i === chain.length - 1) {
         return item;
       }
+      // Morph last node to empty instead of deleting
+      if (shouldMorphLastNode && i === chain.length - 1) {
+        return { ...item, animationState: 'clear' };
+      }
+      // Delete nodes in range
       return i >= index ? { ...item, animationState: 'delete' } : item;
     }));
   };
 
   const handleAnimationComplete = (index: number) => {
+    // Handle 'clear' animation completion - transform to empty node
+    if (chain[index]?.animationState === 'clear') {
+      // Check if there are any pending deletions
+      const hasPendingDeletions = pendingDeletions.size > 0;
+
+      if (hasPendingDeletions) {
+        // If there are pending deletions, wait for all to complete
+        const allDeletionsCompleted = Array.from(pendingDeletions).every(i =>
+          chain[i]?.animationState === 'delete'
+        );
+
+        if (allDeletionsCompleted) {
+          // All delete animations done, now finalize everything
+          const minIndex = Math.min(...Array.from(pendingDeletions));
+          const new_chain = chain.slice(0, minIndex);
+          // Add the cleared node as empty
+          new_chain.push({ model: null, animationState: 'idle' });
+
+          setChain(new_chain);
+          setPendingDeletions(new Set());
+
+          // Notify parent of model changes
+          isInternalUpdateRef.current = true;
+          const modelsList = new_chain
+            .map(item => item.model)
+            .filter((m): m is Model => m !== null);
+          onChange(modelsList);
+        }
+      } else {
+        // No pending deletions, just transform this node to empty
+        setChain(prev => prev.map((item, i) =>
+          i === index ? { model: null, animationState: 'idle' } : item
+        ));
+
+        // Notify parent of model changes
+        isInternalUpdateRef.current = true;
+        const modelsList = chain
+          .slice(0, index)
+          .map(item => item.model)
+          .filter((m): m is Model => m !== null);
+        onChange(modelsList);
+      }
+      return;
+    }
+
+    // Handle 'delete' animation completion
     if (pendingDeletions.has(index)) {
-      // Check if all pending deletions have completed
       const allCompleted = Array.from(pendingDeletions).every(i =>
         chain[i]?.animationState === 'delete'
       );
 
-      if (allCompleted) {
-        // Remove all items that were marked for deletion
+      // Check if there's also a 'clear' animation happening
+      const lastNode = chain[chain.length - 1];
+      const hasClearNode = lastNode?.animationState === 'clear';
+
+      if (allCompleted && !hasClearNode) {
+        // All deletions done and no clear animation
         const minIndex = Math.min(...Array.from(pendingDeletions));
         const new_chain = chain.slice(0, minIndex);
 
-        // Check if there's already a trailing empty node (not deleted)
-        const hasTrailingEmptyNode = chain.length > minIndex && !chain[chain.length - 1].model;
-
-        if (hasTrailingEmptyNode) {
-          if (minIndex !== chain.length - 1) {
-            // Keep the existing trailing empty node only if we didn't specifically delete it
-            new_chain.push({model: null, animationState: 'idle'});
-          }
-        } else {
-          // Add new trailing "add" node
-          new_chain.push({model: null, animationState: 'add'});
+        // Keep trailing empty node if it exists
+        if (!lastNode?.model && chain.length > minIndex) {
+          new_chain.push({ model: null, animationState: 'idle' });
         }
 
         setChain(new_chain);
         setPendingDeletions(new Set());
 
-        // Notify parent of model changes after deletion
+        // Notify parent of model changes
         isInternalUpdateRef.current = true;
         const modelsList = new_chain
           .map(item => item.model)
           .filter((m): m is Model => m !== null);
         onChange(modelsList);
       }
+      // If hasClearNode, wait for clear animation to complete
     }
   };
 

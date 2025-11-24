@@ -7,7 +7,7 @@ interface ChainLinkProps {
   selectedModel: Model | null;
   onSelect: (model: Model) => void;
   onDelete?: () => void;
-  animationState?: 'add' | 'delete' | 'idle';
+  animationState?: 'add' | 'delete' | 'idle' | 'clear';
   onAnimationComplete: () => void;
 }
 
@@ -19,7 +19,7 @@ export default function ChainLink({
   animationState = 'idle',
   onAnimationComplete,
 }: ChainLinkProps) {
-  const [currentState, setCurrentState] = useState<'add' | 'delete' | 'idle'>(animationState);
+  const [currentState, setCurrentState] = useState<'add' | 'delete' | 'idle' | 'clear'>(animationState);
   const animationCountRef = useRef(0);
 
   useEffect(() => {
@@ -40,8 +40,11 @@ export default function ChainLink({
 
     animationCountRef.current++;
 
-    // Both line and node animations need to complete
-    if (animationCountRef.current >= 2) {
+    // Clear state only animates node-wrapper (1 animation)
+    // Add/Delete states animate both line and node-wrapper (2 animations)
+    const requiredAnimations = currentState === 'clear' ? 1 : 2;
+
+    if (animationCountRef.current >= requiredAnimations) {
       animationCountRef.current = 0;
       setCurrentState('idle');
       onAnimationComplete();
@@ -52,6 +55,7 @@ export default function ChainLink({
     'chain-link',
     currentState === 'add' && 'chain-link--add',
     currentState === 'delete' && 'chain-link--delete',
+    currentState === 'clear' && 'chain-link--clear',
     selectedModel ? 'chain-link--filled' : 'chain-link--empty'
   ].filter(Boolean).join(' ');
 

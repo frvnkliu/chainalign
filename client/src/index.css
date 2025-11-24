@@ -178,6 +178,62 @@ main{
   animation: lineShrink 0.3s cubic-bezier(0.4, 0, 0.2, 1) 0.3s forwards;
 }
 
+/* Clear state - node morphs from filled to empty */
+.chain-link--clear .chain-link__node-wrapper {
+  animation: nodeClearWrapper 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.chain-link--clear .chain-node {
+  animation: nodeClearNode 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.chain-link--clear .chain-node__content {
+  animation: fadeOutContent 0.15s ease-out forwards;
+}
+
+@keyframes nodeClearWrapper {
+  0% {
+    width: 80px;
+    height: 80px;
+    min-width: 80px;
+    min-height: 80px;
+  }
+  100% {
+    width: var(--empty-node-size);
+    height: var(--empty-node-size);
+    min-width: var(--empty-node-size);
+    min-height: var(--empty-node-size);
+  }
+}
+
+@keyframes nodeClearNode {
+  0% {
+    width: 80px;
+    height: 80px;
+    min-width: 80px;
+    min-height: 80px;
+  }
+  50% {
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 1;
+    width: var(--empty-node-size);
+    height: var(--empty-node-size);
+    min-width: var(--empty-node-size);
+    min-height: var(--empty-node-size);
+  }
+}
+
+@keyframes fadeOutContent {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
 /* ChainNode Base Styles */
 .chain-node {
   position: relative;
