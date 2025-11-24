@@ -205,6 +205,7 @@ main{
   width: auto;
   height: auto;
   padding: 1rem;
+  padding-bottom: 1.5rem;
 }
 
 .chain-node--hovering {
@@ -297,6 +298,15 @@ main{
   font-weight: bold;
   padding: 0.25rem;
   transition: all 0.15s ease;
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-break: keep-all;
+  hyphens: none;
+  line-height: 1.1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
 .chain-node__option:hover {
@@ -307,6 +317,73 @@ main{
 .chain-node__option--selected {
   background: black;
   color: white;
+}
+
+.chain-node__option--empty {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Pagination controls */
+.chain-node__pagination {
+  position: absolute;
+  bottom: 4px;
+  left: 1rem;
+  right: 1rem;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  pointer-events: none;
+  opacity: 0;
+  animation: fadeInPagination 0.2s ease 0.3s forwards;
+}
+
+@keyframes fadeInPagination {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.chain-node__page-btn {
+  width: 16px;
+  height: 16px;
+  border: none;
+  background: transparent;
+  color: black;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  pointer-events: auto;
+  flex-shrink: 0;
+}
+
+.chain-node__page-btn:hover:not(:disabled) {
+  transform: scale(1.2);
+}
+
+.chain-node__page-btn:disabled {
+  visibility: hidden;
+}
+
+.chain-node__page-info {
+  font-size: 0.6rem;
+  font-weight: bold;
+  background: transparent;
+  padding: 0;
+  border: none;
+  line-height: 1;
+  flex: 1;
+  text-align: center;
 }
 
 /* Delete chain button */
