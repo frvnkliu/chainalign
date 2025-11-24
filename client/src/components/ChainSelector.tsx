@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import ChainLink from './ChainLink';
+import AnimatedChainIndex from './AnimatedChainIndex';
 import { Model, ChainItem } from '../types/chain';
 
 interface ChainSelectorProps {
@@ -226,9 +227,7 @@ export default function ChainSelector({ availableModels, models, onDeleteChain, 
         )}
 
         {chainIndex !== undefined && (
-          <div style={{ fontWeight: 'bold', fontSize: '0.875rem', marginRight: '0.5rem' }}>
-            {chainIndex.toString().padStart(2, '0')}.
-          </div>
+          <AnimatedChainIndex index={chainIndex} />
         )}
 
         <div style={{ fontWeight: 'bold', fontSize: '0.875rem', marginRight: '4px' }}>
