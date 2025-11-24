@@ -73,8 +73,13 @@ export default function ChainSelector({ availableModels, models, onDeleteChain, 
   const handleSelect = (index: number, model: Model) => {
     const new_chain = [...chain]
     new_chain[index] = {model, animationState: 'idle'};
+
+    // Only add trailing node if there are compatible models for the next position
     if (index === chain.length - 1) {
-      new_chain.push({model: null, animationState: 'add'});
+      const hasCompatibleModels = availableModels.some(m => m.inputType === model.outputType);
+      if (hasCompatibleModels) {
+        new_chain.push({model: null, animationState: 'add'});
+      }
     }
     setChain(new_chain);
 
@@ -87,16 +92,24 @@ export default function ChainSelector({ availableModels, models, onDeleteChain, 
   };
 
   const handleDelete = (index: number) => {
-    // Set all nodes from index onwards to delete state
+    // Set all nodes from index onwards to delete state (except trailing empty "add" node)
     const indicesToDelete = new Set<number>();
-    for (let i = index; i < chain.length-1; i++) {
+    for (let i = index; i < chain.length; i++) {
+      // Skip the last node if it's an empty "add" node
+      if (i === chain.length - 1 && !chain[i].model) {
+        continue;
+      }
       indicesToDelete.add(i);
     }
     setPendingDeletions(indicesToDelete);
 
-    setChain(prev => prev.map((item, i) =>
-      i >= index && i != chain.length -1 ? { ...item, animationState: 'delete' } : item
-    ));
+    setChain(prev => prev.map((item, i) => {
+      // Skip the last node if it's an empty "add" node
+      if (i === chain.length - 1 && !chain[i].model) {
+        return item;
+      }
+      return i >= index ? { ...item, animationState: 'delete' } : item;
+    }));
   };
 
   const handleAnimationComplete = (index: number) => {
@@ -109,7 +122,19 @@ export default function ChainSelector({ availableModels, models, onDeleteChain, 
       if (allCompleted) {
         // Remove all items that were marked for deletion
         const minIndex = Math.min(...Array.from(pendingDeletions));
-        const new_chain = chain.slice(0, minIndex).concat([{model: null, animationState: 'idle'}]);
+        const new_chain = chain.slice(0, minIndex);
+
+        // Check if there's already a trailing empty node (not deleted)
+        const hasTrailingEmptyNode = chain.length > minIndex && !chain[chain.length - 1].model;
+
+        if (hasTrailingEmptyNode) {
+          // Keep the existing trailing empty node
+          new_chain.push({model: null, animationState: 'idle'});
+        } else {
+          // Add new trailing "add" node
+          new_chain.push({model: null, animationState: 'add'});
+        }
+
         setChain(new_chain);
         setPendingDeletions(new Set());
 
@@ -123,6 +148,30 @@ export default function ChainSelector({ availableModels, models, onDeleteChain, 
     }
   };
 
+  // Filter available models based on previous node's output type
+  const getFilteredModelsForIndex = (index: number): Model[] => {
+    if (index === 0) return availableModels; // First node: all models available
+    const prevModel = chain[index - 1]?.model;
+    if (!prevModel) return []; // No previous model selected yet
+    return availableModels.filter(m => m.inputType === prevModel.outputType);
+  };
+
+  // Get chain's overall input and output types
+  const chainInputType = chain[0]?.model?.inputType;
+  const chainOutputType = (() => {
+    // Find the last selected model (excluding the trailing empty node)
+    for (let i = chain.length - 1; i >= 0; i--) {
+      const model = chain[i]?.model;
+      if (model) return model.outputType;
+    }
+    return null;
+  })();
+
+  // Helper to capitalize media type
+  const formatMediaType = (type: string | null | undefined) => {
+    if (!type) return null;
+    return type.charAt(0).toUpperCase() + type.slice(1);
+  };
 
   return (
     <div style={{
@@ -156,7 +205,7 @@ export default function ChainSelector({ availableModels, models, onDeleteChain, 
         )}
 
         <div style={{ fontWeight: 'bold', fontSize: '0.875rem', marginRight: '4px' }}>
-          INPUT
+          Input{chainInputType ? ` (${formatMediaType(chainInputType)})` : ''}
         </div>
       </div>
 
@@ -169,7 +218,7 @@ export default function ChainSelector({ availableModels, models, onDeleteChain, 
         {chain.map((item, index) => (
           <ChainLink
             key={index}
-            models={availableModels}
+            models={getFilteredModelsForIndex(index)}
             selectedModel={item.model}
             onSelect={(model) => handleSelect(index, model)}
             onDelete={() => handleDelete(index)}
@@ -188,7 +237,7 @@ export default function ChainSelector({ availableModels, models, onDeleteChain, 
         justifyContent: 'flex-start'
       }}>
         <div style={{ fontWeight: 'bold', fontSize: '0.875rem', marginLeft: '10px' }}>
-          OUTPUT
+          Output{chainOutputType ? ` (${formatMediaType(chainOutputType)})` : ''}
         </div>
       </div>
     </div>
