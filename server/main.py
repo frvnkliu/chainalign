@@ -6,8 +6,9 @@ from server.schemas import (
     ProcessInputResponse,
     VoteRequest,
     VoteResponse,
+    ModelResponse,
 )
-from server.models import get_all_models, ModelInfo
+from server.models_registry import get_all_models
 from typing import List
 import uuid
 
@@ -99,7 +100,7 @@ async def vote(request: VoteRequest):
     )
 
 
-@app.get("/models", response_model=List[ModelInfo])
+@app.get("/models", response_model=List[ModelResponse])
 async def get_models():
     """
     Get all available models.

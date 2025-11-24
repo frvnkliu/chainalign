@@ -14,17 +14,13 @@ interface ModelResponse {
 }
 
 /**
- * Server response format for /models endpoint
- */
-interface AvailableModelsResponse {
-  models: ModelResponse[];
-  count: number;
-}
-
-/**
  * Convert snake_case MediaType from server to our enum
  */
 function parseMediaType(type: string): MediaType {
+  if (!type) {
+    throw new Error('Media type is undefined or null');
+  }
+
   switch (type.toLowerCase()) {
     case 'text':
       return MediaType.Text;
@@ -52,9 +48,9 @@ export async function fetchAvailableModels(): Promise<Model[]> {
     throw new Error(`Failed to fetch models: ${response.statusText}`);
   }
 
-  const data: AvailableModelsResponse = await response.json();
+  const data: ModelResponse[] = await response.json();
 
-  return data.models.map((model) => ({
+  return data.map((model) => ({
     id: model.id,
     name: model.name,
     provider: model.provider,

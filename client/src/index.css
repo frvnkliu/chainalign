@@ -241,8 +241,11 @@ main{
   font-size: 0.75rem;
   text-align: center;
   padding: 0.5rem;
-  white-space: nowrap;
-  overflow: hidden;
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-break: keep-all;
+  hyphens: none;
+  line-height: 1.2;
 }
 
 .chain-node__empty-icon {
