@@ -248,7 +248,7 @@ export default function ChainSelector({ availableModels, models, onDeleteChain, 
         const new_chain = chain.slice(0, minIndex);
 
         // Keep trailing empty node if it exists
-        if (!lastNode?.model && chain.length > minIndex) {
+        if (!lastNode?.model && chain.length-1 > minIndex) {
           new_chain.push({ model: null, animationState: 'idle' });
         }
 
