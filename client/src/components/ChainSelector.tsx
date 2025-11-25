@@ -247,7 +247,7 @@ export default function ChainSelector({ availableModels, models, onDeleteChain, 
         const minIndex = Math.min(...Array.from(pendingDeletions));
         const new_chain = chain.slice(0, minIndex);
 
-        // Keep trailing empty node if it exists
+        // Keep trailing empty node if it exists and we are not purposely removing it
         if (!lastNode?.model && chain.length-1 > minIndex) {
           new_chain.push({ model: null, animationState: 'idle' });
         }
@@ -332,8 +332,20 @@ export default function ChainSelector({ availableModels, models, onDeleteChain, 
           <AnimatedChainIndex index={chainIndex} />
         )}
 
-        <div style={{ fontWeight: 'bold', fontSize: '0.875rem', marginRight: '4px' }}>
-          Input{chainInputType ? ` (${formatMediaType(chainInputType)})` : ''}
+        <div style={{
+          fontWeight: 'bold',
+          fontSize: '0.875rem',
+          marginRight: '4px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+        }}>
+          <div>Input</div>
+          {chainInputType && (
+            <div style={{ fontSize: '0.75rem', fontWeight: 'normal' }}>
+              ({formatMediaType(chainInputType)})
+            </div>
+          )}
         </div>
       </div>
 
@@ -364,8 +376,20 @@ export default function ChainSelector({ availableModels, models, onDeleteChain, 
         alignItems: 'center',
         justifyContent: 'flex-start'
       }}>
-        <div style={{ fontWeight: 'bold', fontSize: '0.875rem', marginLeft: '10px' }}>
-          Output{chainOutputType ? ` (${formatMediaType(chainOutputType)})` : ''}
+        <div style={{
+          fontWeight: 'bold',
+          fontSize: '0.875rem',
+          marginLeft: '10px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+        }}>
+          <div>Output</div>
+          {chainOutputType && (
+            <div style={{ fontSize: '0.75rem', fontWeight: 'normal' }}>
+              ({formatMediaType(chainOutputType)})
+            </div>
+          )}
         </div>
       </div>
     </div>
