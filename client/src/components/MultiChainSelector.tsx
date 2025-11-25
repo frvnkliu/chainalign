@@ -29,6 +29,7 @@ export default function MultiChainSelector({
     }));
   });
   const viewportRef = useRef<HTMLDivElement>(null);
+  const [deletingChainId, setDeletingChainId] = useState<number | null>(null);
 
   // Center first chain on mount
   useEffect(() => {
@@ -62,26 +63,14 @@ export default function MultiChainSelector({
   const handleDeleteChain = (id: number) => {
     if (chains.length === 1) return; // Don't delete the last chain
 
-    // Find the index of the chain being deleted
-    const deletedIndex = chains.findIndex(chain => chain.id === id);
+    // Trigger deletion animation
+    setDeletingChainId(id);
 
-    setChains(prev => prev.filter(chain => chain.id !== id));
-
-    // Scroll to nearest chain after deletion (prefer above, then below)
+    // Wait for animation to complete before removing from state
     setTimeout(() => {
-      if (viewportRef.current) {
-        const allChains = viewportRef.current.querySelectorAll('.multi-chain-selector__chain');
-
-        // Prefer the chain that was above (now at deletedIndex - 1)
-        // If none above, use the chain that was below (now at deletedIndex)
-        const targetIndex = deletedIndex > 0 ? deletedIndex - 1 : 0;
-        const targetChain = allChains[targetIndex];
-
-        if (targetChain) {
-          targetChain.scrollIntoView({ block: 'center', behavior: 'smooth' });
-        }
-      }
-    }, 50);
+      setChains(prev => prev.filter(chain => chain.id !== id));
+      setDeletingChainId(null);
+    }, 340); // Match CSS animation duration
   };
 
   // Handle changes to individual chain models
@@ -103,7 +92,7 @@ export default function MultiChainSelector({
         {chains.map((chain, index) => (
           <div
             key={chain.id}
-            className="multi-chain-selector__chain"
+            className={`multi-chain-selector__chain ${deletingChainId === chain.id ? 'multi-chain-selector__chain--deleting' : ''}`}
           >
             <ChainSelector
               availableModels={availableModels}
