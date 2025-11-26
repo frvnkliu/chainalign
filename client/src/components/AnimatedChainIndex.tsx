@@ -30,7 +30,7 @@ export default function AnimatedChainIndex({ index }: AnimatedChainIndexProps) {
         }, 200);
 
         return () => clearTimeout(animationTimer);
-      }, 350);
+      }, 320);
 
       return () => clearTimeout(delayTimer);
     }

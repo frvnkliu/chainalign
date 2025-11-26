@@ -182,11 +182,11 @@ main {
 
 /* Clear state - node morphs from filled to empty */
 .chain-link--clear .chain-link__node-wrapper {
-  animation: nodeClearWrapper 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: nodeClearWrapper 0.34s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 .chain-link--clear .chain-node {
-  animation: nodeClearNode 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: nodeClearNode 0.34s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 .chain-link--clear .chain-node__content {
