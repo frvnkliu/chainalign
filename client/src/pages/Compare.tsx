@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import './Compare.css';
 
 interface Message {
   id: string;
@@ -110,132 +111,69 @@ export default function Compare() {
 
   if (!sessionId) {
     return (
-      <div>
-        <h1 style={{
-          fontSize: '3rem',
-          fontWeight: 'bold',
-          marginBottom: '2rem',
-          textTransform: 'uppercase',
-          borderBottom: '3px solid black',
-          paddingBottom: '1rem',
-        }}>
+      <div className="compare-page">
+        <h1 className="compare-page__header">
           Compare Models
         </h1>
         <button
           onClick={initializeSession}
-          style={{
-            padding: '1rem 2rem',
-            fontSize: '1.2rem',
-            fontWeight: 'bold',
-            backgroundColor: 'black',
-            color: 'white',
-            border: 'none',
-            cursor: 'pointer',
-          }}
+          className="compare-page__start-btn"
         >
           Start Session
         </button>
-        {error && <p style={{ color: 'red', marginTop: '1rem' }}>{error}</p>}
+        {error && <p className="compare-page__error">{error}</p>}
       </div>
     );
   }
 
   return (
-    <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-      <h1 style={{
-        fontSize: '3rem',
-        fontWeight: 'bold',
-        marginBottom: '2rem',
-        textTransform: 'uppercase',
-        borderBottom: '3px solid black',
-        paddingBottom: '1rem',
-      }}>
+    <div className="compare-page">
+      <h1 className="compare-page__header">
         Compare Models
       </h1>
 
-      <div style={{ marginBottom: '2rem' }}>
+      <div className="compare-page__messages">
         {messages.map((message) => (
-          <div key={message.id} style={{ marginBottom: '3rem' }}>
-            <div style={{
-              padding: '1rem',
-              backgroundColor: '#f5f5f5',
-              borderLeft: '4px solid black',
-              marginBottom: '1rem',
-            }}>
+          <div key={message.id} className="compare-page__message">
+            <div className="compare-page__user-input">
               <strong>You:</strong> {message.userInput}
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
-              <div style={{
-                padding: '1rem',
-                border: '2px solid black',
-                backgroundColor: message.vote === 'A' ? '#e0ffe0' : 'white',
-              }}>
-                <div style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>Model A</div>
-                <div style={{ whiteSpace: 'pre-wrap' }}>{message.outputA}</div>
+            <div className="compare-page__outputs">
+              <div className={`compare-page__output ${message.vote === 'A' ? 'compare-page__output--voted-a' : ''}`}>
+                <div className="compare-page__output-label">Model A</div>
+                <div className="compare-page__output-text">{message.outputA}</div>
               </div>
 
-              <div style={{
-                padding: '1rem',
-                border: '2px solid black',
-                backgroundColor: message.vote === 'B' ? '#e0ffe0' : 'white',
-              }}>
-                <div style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>Model B</div>
-                <div style={{ whiteSpace: 'pre-wrap' }}>{message.outputB}</div>
+              <div className={`compare-page__output ${message.vote === 'B' ? 'compare-page__output--voted-b' : ''}`}>
+                <div className="compare-page__output-label">Model B</div>
+                <div className="compare-page__output-text">{message.outputB}</div>
               </div>
             </div>
 
             {!message.vote && (
-              <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem', justifyContent: 'center' }}>
+              <div className="compare-page__voting">
                 <button
                   onClick={() => handleVote(message.id, message.matchupId, 'A')}
-                  style={{
-                    padding: '0.5rem 1rem',
-                    backgroundColor: 'black',
-                    color: 'white',
-                    border: 'none',
-                    cursor: 'pointer',
-                    fontWeight: 'bold',
-                  }}
+                  className="compare-page__vote-btn"
                 >
                   A is Better
                 </button>
                 <button
                   onClick={() => handleVote(message.id, message.matchupId, 'B')}
-                  style={{
-                    padding: '0.5rem 1rem',
-                    backgroundColor: 'black',
-                    color: 'white',
-                    border: 'none',
-                    cursor: 'pointer',
-                    fontWeight: 'bold',
-                  }}
+                  className="compare-page__vote-btn"
                 >
                   B is Better
                 </button>
                 <button
                   onClick={() => handleVote(message.id, message.matchupId, 'tie')}
-                  style={{
-                    padding: '0.5rem 1rem',
-                    backgroundColor: '#666',
-                    color: 'white',
-                    border: 'none',
-                    cursor: 'pointer',
-                    fontWeight: 'bold',
-                  }}
+                  className="compare-page__vote-btn compare-page__vote-btn--secondary"
                 >
                   Tie
                 </button>
                 <button
                   onClick={() => handleVote(message.id, message.matchupId, 'both_bad')}
-                  style={{
-                    padding: '0.5rem 1rem',
-                    backgroundColor: '#999',
-                    color: 'white',
-                    border: 'none',
-                    cursor: 'pointer',
-                    fontWeight: 'bold',
-                  }}
+                  className="compare-page__vote-btn compare-page__vote-btn--tertiary"
                 >
                   Both Bad
                 </button>
@@ -243,7 +181,7 @@ export default function Compare() {
             )}
 
             {message.vote && (
-              <div style={{ textAlign: 'center', marginTop: '1rem', color: '#666' }}>
+              <div className="compare-page__vote-result">
                 Voted: {message.vote === 'A' ? 'A is Better' : message.vote === 'B' ? 'B is Better' : message.vote === 'tie' ? 'Tie' : 'Both Bad'}
               </div>
             )}
@@ -251,14 +189,8 @@ export default function Compare() {
         ))}
       </div>
 
-      <div style={{
-        position: 'sticky',
-        bottom: 0,
-        backgroundColor: 'white',
-        padding: '1rem 0',
-        borderTop: '2px solid black',
-      }}>
-        <div style={{ display: 'flex', gap: '1rem' }}>
+      <div className="compare-page__input-container">
+        <div className="compare-page__input-form">
           <input
             type="text"
             value={input}
@@ -266,31 +198,17 @@ export default function Compare() {
             onKeyDown={(e) => e.key === 'Enter' && !loading && handleSend()}
             placeholder="Type your message..."
             disabled={loading}
-            style={{
-              flex: 1,
-              padding: '1rem',
-              fontSize: '1rem',
-              border: '2px solid black',
-              outline: 'none',
-            }}
+            className="compare-page__input"
           />
           <button
             onClick={handleSend}
             disabled={loading || !input.trim()}
-            style={{
-              padding: '1rem 2rem',
-              fontSize: '1rem',
-              fontWeight: 'bold',
-              backgroundColor: loading || !input.trim() ? '#ccc' : 'black',
-              color: 'white',
-              border: 'none',
-              cursor: loading || !input.trim() ? 'not-allowed' : 'pointer',
-            }}
+            className="compare-page__send-btn"
           >
             {loading ? 'Sending...' : 'Send'}
           </button>
         </div>
-        {error && <p style={{ color: 'red', marginTop: '1rem' }}>{error}</p>}
+        {error && <p className="compare-page__error">{error}</p>}
       </div>
     </div>
   );
