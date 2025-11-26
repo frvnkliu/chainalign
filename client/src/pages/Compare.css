@@ -2,8 +2,126 @@
 .compare-page {
   flex: 1;
   display: flex;
+  flex-direction: row;
+  height: 100%;
+  gap: 0;
+}
+
+/* Sidebar */
+.compare-page__sidebar {
+  width: 260px;
+  border-right: 2px solid black;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  margin-left: -2rem;
+  padding: 1rem;
+  flex-shrink: 0;
+}
+
+.compare-page__sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid black;
+}
+
+.compare-page__sidebar-title {
+  font-weight: bold;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+}
+
+.compare-page__new-chat-btn {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8rem;
+  font-weight: bold;
+  background-color: black;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.compare-page__new-chat-btn:hover {
+  background-color: #333;
+}
+
+.compare-page__conversations {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.compare-page__conversation-item {
+  padding: 0.75rem;
+  border: 2px solid black;
+  background: white;
+  cursor: pointer;
+  font-size: 0.85rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background-color 0.15s;
+}
+
+.compare-page__conversation-item:hover {
+  background-color: #f5f5f5;
+}
+
+.compare-page__conversation-item--active {
+  background-color: black;
+  color: white;
+}
+
+.compare-page__conversation-item--active:hover {
+  background-color: #333;
+}
+
+.compare-page__conversation-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.compare-page__conversation-delete {
+  width: 18px;
+  height: 18px;
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-size: 0.7rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.compare-page__conversation-item:hover .compare-page__conversation-delete {
+  opacity: 1;
+}
+
+.compare-page__conversation-delete:hover {
+  color: red;
+}
+
+/* Main Content Area */
+.compare-page__main {
+  flex: 1;
+  display: flex;
   flex-direction: column;
   height: 100%;
+  min-width: 0;
+  padding: 0 2rem;
 }
 
 .compare-page__header {
@@ -14,14 +132,14 @@
   text-transform: uppercase;
   border-bottom: 3px solid black;
   padding-bottom: 1rem;
-  display: block;
+  flex-shrink: 0;
 }
 
 /* Messages Container - scrollable area */
 .compare-page__messages {
   flex: 1;
   overflow-y: auto;
-  margin-bottom: 1rem;
+  min-height: 0;
 }
 
 .compare-page__message {
@@ -53,6 +171,14 @@
 
 .compare-page__output--voted-b {
   background-color: #e0ffe0;
+}
+
+.compare-page__output--voted-tie {
+  background-color: #e0f2ff;
+}
+
+.compare-page__output--voted-both-bad {
+  background-color: #ffe0e0;
 }
 
 .compare-page__output-label {
@@ -97,12 +223,11 @@
 
 /* Input Area - sticky at bottom */
 .compare-page__input-container {
-  position: sticky;
-  bottom: 0;
   background-color: white;
   padding: 1rem 0;
   border-top: 2px solid black;
   margin-top: auto;
+  flex-shrink: 0;
 }
 
 .compare-page__input-form {
@@ -141,10 +266,16 @@
 /* Start Session Page */
 .compare-page__start-btn {
   padding: 1rem 2rem;
-  font-size: 1.2rem;
+  font-size: 1rem;
   font-weight: bold;
   background-color: black;
   color: white;
-  border: none;
+  border: 2px solid black;
   cursor: pointer;
+  width: fit-content;
+}
+
+.compare-page__start-btn:hover {
+  background-color: white;
+  color: black;
 }

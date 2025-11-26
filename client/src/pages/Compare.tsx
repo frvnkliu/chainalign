@@ -10,7 +10,17 @@ interface Message {
   vote?: 'A' | 'B' | 'tie' | 'both_bad';
 }
 
+interface Conversation {
+  id: string;
+  name: string;
+  sessionId: string;
+  messages: Message[];
+  createdAt: Date;
+}
+
 export default function Compare() {
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
@@ -49,7 +59,18 @@ export default function Compare() {
         matchupId: data.matchup_id,
       };
 
-      setMessages([...messages, newMessage]);
+      const updatedMessages = [...messages, newMessage];
+      setMessages(updatedMessages);
+
+      // Update the conversation in the list
+      if (currentConversationId) {
+        setConversations(conversations.map(conv =>
+          conv.id === currentConversationId
+            ? { ...conv, messages: updatedMessages, name: conv.name === 'New Chat' ? input.slice(0, 30) + (input.length > 30 ? '...' : '') : conv.name }
+            : conv
+        ));
+      }
+
       setInput('');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
@@ -78,9 +99,19 @@ export default function Compare() {
         throw new Error('Failed to record vote');
       }
 
-      setMessages(messages.map(msg =>
+      const updatedMessages = messages.map(msg =>
         msg.id === messageId ? { ...msg, vote } : msg
-      ));
+      );
+      setMessages(updatedMessages);
+
+      // Update the conversation in the list
+      if (currentConversationId) {
+        setConversations(conversations.map(conv =>
+          conv.id === currentConversationId
+            ? { ...conv, messages: updatedMessages }
+            : conv
+        ));
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to vote');
     }
@@ -103,34 +134,108 @@ export default function Compare() {
       }
 
       const data = await response.json();
-      setSessionId(data.session_id);
+      const newSessionId = data.session_id;
+
+      // Create a new conversation
+      const conversationId = Date.now().toString();
+      const newConversation: Conversation = {
+        id: conversationId,
+        name: 'New Chat',
+        sessionId: newSessionId,
+        messages: [],
+        createdAt: new Date(),
+      };
+
+      setConversations([...conversations, newConversation]);
+      setCurrentConversationId(conversationId);
+      setSessionId(newSessionId);
+      setMessages([]);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to initialize');
     }
   };
 
-  if (!sessionId) {
-    return (
-      <div className="compare-page">
-        <h1 className="compare-page__header">
-          Compare Models
-        </h1>
-        <button
-          onClick={initializeSession}
-          className="compare-page__start-btn"
-        >
-          Start Session
-        </button>
-        {error && <p className="compare-page__error">{error}</p>}
-      </div>
-    );
-  }
+  const switchConversation = (conversationId: string) => {
+    const conversation = conversations.find(c => c.id === conversationId);
+    if (conversation) {
+      setCurrentConversationId(conversationId);
+      setSessionId(conversation.sessionId);
+      setMessages(conversation.messages);
+    }
+  };
+
+  const deleteConversation = (conversationId: string) => {
+    const updatedConversations = conversations.filter(c => c.id !== conversationId);
+    setConversations(updatedConversations);
+
+    if (currentConversationId === conversationId) {
+      if (updatedConversations.length > 0) {
+        switchConversation(updatedConversations[0].id);
+      } else {
+        setCurrentConversationId(null);
+        setSessionId(null);
+        setMessages([]);
+      }
+    }
+  };
 
   return (
     <div className="compare-page">
-      <h1 className="compare-page__header">
-        Compare Models
-      </h1>
+      {/* Sidebar */}
+      <div className="compare-page__sidebar">
+        <div className="compare-page__sidebar-header">
+          <div className="compare-page__sidebar-title">Chats</div>
+          <button
+            onClick={initializeSession}
+            className="compare-page__new-chat-btn"
+          >
+            New
+          </button>
+        </div>
+        <div className="compare-page__conversations">
+          {conversations.map((conv) => (
+            <div
+              key={conv.id}
+              className={`compare-page__conversation-item ${
+                conv.id === currentConversationId ? 'compare-page__conversation-item--active' : ''
+              }`}
+              onClick={() => switchConversation(conv.id)}
+            >
+              <div className="compare-page__conversation-name">{conv.name}</div>
+              <button
+                className="compare-page__conversation-delete"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  deleteConversation(conv.id);
+                }}
+                aria-label="Delete conversation"
+              >
+                ×
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Main Content */}
+      {!sessionId ? (
+        <div className="compare-page__main">
+          <h1 className="compare-page__header">
+            Compare Models
+          </h1>
+          <button
+            onClick={initializeSession}
+            className="compare-page__start-btn"
+          >
+            Start Session
+          </button>
+          {error && <p className="compare-page__error">{error}</p>}
+        </div>
+      ) : (
+        <div className="compare-page__main">
+          <h1 className="compare-page__header">
+            Compare Models
+          </h1>
 
       <div className="compare-page__messages">
         {messages.map((message) => (
@@ -140,12 +245,20 @@ export default function Compare() {
             </div>
 
             <div className="compare-page__outputs">
-              <div className={`compare-page__output ${message.vote === 'A' ? 'compare-page__output--voted-a' : ''}`}>
+              <div className={`compare-page__output ${
+                message.vote === 'A' ? 'compare-page__output--voted-a' :
+                message.vote === 'tie' ? 'compare-page__output--voted-tie' :
+                message.vote === 'both_bad' ? 'compare-page__output--voted-both-bad' : ''
+              }`}>
                 <div className="compare-page__output-label">Model A</div>
                 <div className="compare-page__output-text">{message.outputA}</div>
               </div>
 
-              <div className={`compare-page__output ${message.vote === 'B' ? 'compare-page__output--voted-b' : ''}`}>
+              <div className={`compare-page__output ${
+                message.vote === 'B' ? 'compare-page__output--voted-b' :
+                message.vote === 'tie' ? 'compare-page__output--voted-tie' :
+                message.vote === 'both_bad' ? 'compare-page__output--voted-both-bad' : ''
+              }`}>
                 <div className="compare-page__output-label">Model B</div>
                 <div className="compare-page__output-text">{message.outputB}</div>
               </div>
@@ -210,6 +323,8 @@ export default function Compare() {
         </div>
         {error && <p className="compare-page__error">{error}</p>}
       </div>
+        </div>
+      )}
     </div>
   );
 }
