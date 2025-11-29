@@ -13,6 +13,8 @@ export default function ChainNode({ models, selectedModel, onSelect, onDelete }:
   const [isHovering, setIsHovering] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const allowHoverExpansionRef = useRef(true);
+  const allowHoverCollapseRef = useRef(true);
+  const nodeRef = useRef<HTMLDivElement>(null);
   const ITEMS_PER_PAGE = 9;
 
   // Temporarily disable hover expansion on mount (in case element appeared under cursor via scroll)
@@ -39,6 +41,21 @@ export default function ChainNode({ models, selectedModel, onSelect, onDelete }:
       setCurrentPage(0);
     }
   }, [isExpanded, selectedModel, models]);
+
+  // Scroll node into view when expanded and disable mouse leave temporarily
+  useEffect(() => {
+    if (isExpanded && nodeRef.current) {
+      nodeRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+
+      // Disable hover collapse during expansion
+      allowHoverCollapseRef.current = false;
+      const timer = setTimeout(() => {
+        allowHoverCollapseRef.current = true;
+      }, 500); // Wait 500ms after expansion before allowing collapse
+
+      return () => clearTimeout(timer);
+    }
+  }, [isExpanded]);
 
   const groupIntoRows = (items: Model[]) => {
     const rows: Model[][] = [];
@@ -88,7 +105,9 @@ export default function ChainNode({ models, selectedModel, onSelect, onDelete }:
 
   const handleMouseLeave = () => {
     setIsHovering(false);
-    if (shouldExpandOnHover) setIsExpanded(false);
+    if (shouldExpandOnHover && allowHoverCollapseRef.current) {
+      setIsExpanded(false);
+    }
   };
 
   const handleClick = () => {
@@ -110,6 +129,7 @@ export default function ChainNode({ models, selectedModel, onSelect, onDelete }:
 
   return (
     <div
+      ref={nodeRef}
       className={nodeClasses}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}

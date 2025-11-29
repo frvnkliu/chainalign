@@ -35,9 +35,11 @@
   flex-shrink: 0;
   width: 100%;
   min-height: 29vh;
+  padding: 0 3rem;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow-x: auto;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
